@@ -1,3 +1,4 @@
+import json
 import pprint
 from aenum import extend_enum, auto
 from addict import Dict
@@ -7,13 +8,13 @@ import webapp_framework as wf
 from webapp_framework import dpop
 import tailwind_tags as tw
 from .chart_ui_cfg import CPT, addict_walker, get_baseCfgAttrMeta, update_chartCfg, FalseDict, update_cfgattrmeta
-from .session_data import add_data
-
+from . import session_data
 from .ui_styles import sty
 # import actions
 import importlib
 import sys
 import traceback
+import pickle
 # importlib.reload(sys.modules['chartjs_customizer.chart_ui_cfg'])
 
 # from .session_data import session_data
@@ -45,7 +46,7 @@ def launcher(request):
     wp.css = 'body { font-family: Inter; }'
 
     tlc = jp.Div(a=wp, classes=tw.tstr(*sty.tlc))
-    session_id = request['session_id']
+    session_id = request.session_id  # 'session_id']
     refBoard = Dict()
     # =================== db for chart label input ===================
     labelsarea_ = wf.hc.Wrapdiv_(wf.register(refBoard, wf.hc.Textarea_("label", placeholder=pprint.pformat(sample_label),
@@ -90,8 +91,10 @@ def launcher(request):
 
     def on_submit_click(dbref, msg):
         print("go  on ...build the chart")
-        add_data(session_id, [cjs_cfg, ui_cfg, cfgAttrMeta])
-
+        session_data.add(session_id, [cjs_cfg, ui_cfg, cfgAttrMeta])
+        with open("session_data.pickle", "wb") as fh:
+            pickle.dump([cjs_cfg, ui_cfg, cfgAttrMeta], fh)
+        fh.close()
         wp.redirect = "/configchart"
 
     submit_ = wf.hc.Wrapdiv_(wf.hc.Button_(
