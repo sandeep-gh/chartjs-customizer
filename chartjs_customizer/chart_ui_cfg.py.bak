@@ -1,10 +1,10 @@
-
+# adding one more attribute, context, to attrmeta
 """all things required to build/update/maintain chart and ui cfg"""
 import logging
 from addict import Dict
 from typing import NamedTuple, Any
 from webapp_framework.uic_generator_attrMeta import AttrMeta
-# from justpy_chartjs.tags.cfg_template import Color
+#from justpy_chartjs.tags.cfg_template import Color
 from justpy_chartjs.tags.style_values import Align, Position
 from justpy_chartjs.tags.style_values import Axis
 from aenum import Enum, auto
@@ -59,7 +59,6 @@ class AttrMeta(NamedTuple):
     vrange: Any
     group: Any
     active: Any
-    context: Any  # describes all scenarios when attribute is active
 
 
 class FalseDict(Enum):
@@ -78,96 +77,73 @@ class PlotType(Enum):
 
 
 # =========================== func def ===========================
-all_context = [('*', '*')]
-
-
-def attrmeta_in_context(ctx, cfgattrmeta):
-    for kpath, attrmeta in filter(lambda _: is_visible(_[1]),
-                                  addict_walker(cfgattrmeta)
-                                  ):
-        if ctx in attrmeta.context:
-            yield kpath
-
-    pass
-
-
 def get_baseCfgAttrMeta():
     _base = cfgAttrMeta_base = Dict(track_changes=True)
     _base.type = AttrMeta(PlotType.Undef, PlotType,
-                          PlotType, CPT.initial, True, all_context)
+                          PlotType, CPT.initial, True)
     _base.options.responsive = AttrMeta(
-        True, bool, bool, CPT.perf, True, [('*', '*')])
+        True, bool, bool, CPT.perf, True)
     _base.options.aspectRatio = AttrMeta(
-        2, int, [1, 4], CPT.advanced, True, [('*', '*')])
+        2, int, [1, 4], CPT.advanced, True)
     _base.options.resizeDelay = AttrMeta(
-        4, int, [1, 9], CPT.perf, True, [('*', '*')])
+        4, int, [1, 9], CPT.perf, True)
     _base.options.devicePixelRatio = AttrMeta(
-        1, int, [1, 5], CPT.advanced, True, [('*', '*')])
+        1, int, [1, 5], CPT.advanced, True)
     _base.options.parsing.value = AttrMeta(False, FalseDict,
-                                           {'xAxisKey': AttrMeta('x', str, str, CPT.initial, False, [('/options/parsing/', True)]),
-                                            'yAxisKey': AttrMeta('y', str, str, CPT.initial, False, [('/options/parsing/', True)]),
-                                            'key': AttrMeta('id', str, str, CPT.initial, False, [('/options/parsing/', True)])
-                                            }, CPT.initial, True, [('*', '*')])
+                                           {'xAxisKey': AttrMeta('x', str, str, CPT.initial, False),
+                                            'yAxisKey': AttrMeta('y', str, str, CPT.initial, False),
+                                            'key': AttrMeta('id', str, str, CPT.initial, False)
+                                            }, CPT.initial, True)
 
     _base.options.parsing.xAxisKey = AttrMeta(
-        'x', str, str, CPT.initial, False, [('options/parsing', 'True')])  # active only if /options/parsing is True
+        'x', str, str, CPT.initial, False)
     _base.options.parsing.yAxisKey = AttrMeta(
-        'y', str, str, CPT.initial, False, [('options/parsing', 'True')])
-    _base.options.parsing.id = AttrMeta('id', str, str, CPT.initial, False, [
-        ('options/parsing', 'True')])
+        'y', str, str, CPT.initial, False)
+    _base.options.parsing.id = AttrMeta('id', str, str, CPT.initial, False)
 
-    # _base.options.plugins = Dict()
-    # _base.options.plugins.legend = Dict()
+    #_base.options.plugins = Dict()
+    #_base.options.plugins.legend = Dict()
     _base.options.plugins.legend.position = AttrMeta(
-        Position.top, Position, Position, CPT.simplemore, True, all_context)
+        Position.top, Position, Position, CPT.simplemore, True)
 
-    # _base.options.plugins.title = Dict()
+    #_base.options.plugins.title = Dict()
     _base.options.plugins.title.display = AttrMeta(
-        True, bool, bool, CPT.simple, True, all_context)
+        True, bool, bool, CPT.simple, True)
     _base.options.plugins.title.text = AttrMeta(
-        "plot_title", str, str, CPT.simple, True, all_context)
+        "plot_title", str, str, CPT.simple, True)
 
     # ========================= elements/line ========================
 
     _base.options.elements = Dict(track_changes=True)
     _ = _base.options.elements.line = Dict(track_changes=True)
-    _.tension = AttrMeta(0, float, [0, 1], CPT.advanced, True, [
-        ('/type', 'line')])
+    _.tension = AttrMeta(0, float, [0, 1], CPT.advanced, True)
     _.backgroundColor = AttrMeta(
-        "", Color, Color, CPT.simple, True, [('/type', 'line')])
-    _.borderWidth = AttrMeta(
-        2, int, [0, 5], CPT.simple, True, [('/type', 'line')])
-    _.borderColor = AttrMeta(
-        "", Color, Color, CPT.simple,  True, [('/type', 'line')])
-    _.borderCapStyle = AttrMeta(
-        "butt", None, None, CPT.TBD, False, [('/type', 'line')])
-    _.borderDash = AttrMeta([], None, None, CPT.TBD,
-                            False, [('/type', 'line')])
-    _.borderDashOffset = AttrMeta(
-        0.0, None, None, CPT.TBD, False, [('/type', 'line')])
-    _.borderJoinStyle = AttrMeta(
-        "miter", None, None, CPT.TBD, False, [('/type', 'line')])
-    _.capBezierPoints = AttrMeta(
-        True, bool, bool, CPT.advanced, False, [('/type', 'line')])
+        "", Color, Color, CPT.simple, True)
+    _.borderWidth = AttrMeta(2, int, [0, 5], CPT.simple, True)
+    _.borderColor = AttrMeta("", Color, Color, CPT.simple,  True)
+    _.borderCapStyle = AttrMeta("butt", None, None, CPT.TBD, False)
+    _.borderDash = AttrMeta([], None, None, CPT.TBD, False)
+    _.borderDashOffset = AttrMeta(0.0, None, None, CPT.TBD, False)
+    _.borderJoinStyle = AttrMeta("miter", None, None, CPT.TBD, False)
+    _.capBezierPoints = AttrMeta(True, bool, bool, CPT.advanced, False)
     _.cubicInterpolationMode = AttrMeta(
-        "default", None, None, CPT.TBD, False, [('/type', 'line')])
-    _.fill = AttrMeta(None, None, None, CPT.TBD, False, [('/type', 'line')])
-    _.stepped = AttrMeta(None, None, None, CPT.TBD,
-                         False, [('/type', 'line')])
+        "default", None, None, CPT.TBD, False)
+    _.fill = AttrMeta(None, None, None, CPT.TBD, False)
+    _.stepped = AttrMeta(None, None, None, CPT.TBD,  False)
     # ============================ end elements/line===========================
 
     _xAxis = _base.options.scales.xAxis
     # _xAxis.grid = Dict()  # TBD
     _xAxis.grid.display = AttrMeta(
-        False, bool, bool, CPT.simple, True, [('/type', 'line')])
+        False, bool, bool, CPT.simple, True)
     _xAxis.grid.color = AttrMeta(
-        "", Color, Color, CPT.simple, False, [('/type', 'line')])
+        "", Color, Color, CPT.simple, False)
     _xAxis.grid.borderColor = AttrMeta(
-        "", Color, Color, CPT.simplemore, False, [('/type', 'line')])
+        "", Color, Color, CPT.simplemore, False)
     _xAxis.grid.tickColor = AttrMeta(
-        "", Color, Color, CPT.simplemore, False, [('/type', 'line')])
+        "", Color, Color, CPT.simplemore, False)
     _xAxis.grid.circular = AttrMeta(
-        None, None, None, CPT.simple, False, [('/type', 'line')])  # from for radar chart
+        None, None, None, CPT.simple, False)  # from for radar chart
 
     return _base
 
@@ -204,7 +180,7 @@ def eval_attrmetadefault(cam):
 
 def build_plt_cfg(chart_cfg):
     """
-    translate chart_cfg
+    translate chart_cfg 
     """
     def to_chartcfg_path(kpath, val):
         match kpath, val:
@@ -215,7 +191,7 @@ def build_plt_cfg(chart_cfg):
             case _:
                 return kpath, val
 
-    plt_cfg=Dict()
+    plt_cfg = Dict()
     for kpath, val in map(lambda _: to_chartcfg_path(_[0], _[1]), addict_walker(chart_cfg)):
         dnew(plt_cfg, kpath, val)
 
@@ -224,10 +200,10 @@ def build_plt_cfg(chart_cfg):
 
 def update_chartCfg(cfgattrmeta, cjs_cfg):
     """
-    there are two copies of cfg: cjs_cfg and ui_cfg.
+    there are two copies of cfg: cjs_cfg and ui_cfg. 
     cjs_cfg is used for chartjs.
-    ui_cfg is for ui drawing.
-    value of ui_cfg is a tuple (bool, default_value). In the
+    ui_cfg is for ui drawing. 
+    value of ui_cfg is a tuple (bool, default_value). In the 
     cjs_cfg is what gets shipped to chartjs.
     """
 
@@ -243,8 +219,8 @@ def update_chartCfg(cfgattrmeta, cjs_cfg):
 
     for kpath in filter(lambda kpath: dget(cfgattrmeta, kpath).active,
                         cfgattrmeta.get_changed_history()):
-        attrmeta=dget(cfgattrmeta, kpath)
-        evalue=eval_attrmetadefault(attrmeta)
+        attrmeta = dget(cfgattrmeta, kpath)
+        evalue = eval_attrmetadefault(attrmeta)
         dnew(cjs_cfg, kpath, evalue)
     cfgattrmeta.clear_changed_history()
 
@@ -254,8 +230,8 @@ def update_chartCfg(cfgattrmeta, cjs_cfg):
 # ============================= func def =============================
 
 def attrupdate(cfgattrmeta, kpath, active):
-    attrmeta=dget(cfgattrmeta, kpath)
-    attrmeta=attrmeta._replace(active=active)
+    attrmeta = dget(cfgattrmeta, kpath)
+    attrmeta = attrmeta._replace(active=active)
     wf.dupdate(cfgattrmeta, kpath, attrmeta)
 
 
@@ -270,14 +246,11 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
         case("/type", PlotType.Line | 'line'):  # value in justpy is never a python objet
             # TODO: also disable any
             attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", True)
-            for dpath in attrmeta_in_context(('/type', 'line'), cfgattrmeta):
-                print ("context search : dpath")
-                attrupdate(cfgattrmeta, dpath, True)
             # activate point element
             # activate line element
 
         case("/options/scales/xAxis/grid/display", True):
-            _=cfgattrmeta.options.scales.xAxis.grid
+            _ = cfgattrmeta.options.scales.xAxis.grid
             for _ in ['color', 'borderColor', 'tickColor']:  # deal with circular later
                 attrupdate(
                     cfgattrmeta, f"/options/scales/xAxis/grid/{_}", True)
@@ -305,15 +278,15 @@ def update_cfgattrmeta(chartcfg, cfgAttrMeta):
 
 
 # ========================== add data items ==========================
-colorSchemes={"default": ["#7f3b08", "#f7f7f7", "#2d004b"]
+colorSchemes = {"default": ["#7f3b08", "#f7f7f7", "#2d004b"]
                 }
 
-colorset=default_colorset=pick_colors_from_anchors(
+colorset = default_colorset = pick_colors_from_anchors(
     colorSchemes["default"], 8)
 
 
-labels=["ds1", "ds2", "ds3", "ds4", "ds5"]
-datavals=[[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}],
+labels = ["ds1", "ds2", "ds3", "ds4", "ds5"]
+datavals = [[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}],
             [{'x': 1, 'y': 7}, {'x': 5, 'y': 2}],
             [{'x': 1, 'y': 0}, {'x': 5, 'y': 8}],
             [{'x': 1, 'y': 13}, {'x': 5, 'y': 2}],
@@ -324,11 +297,11 @@ datavals=[[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}],
 
 def datagen(labels, datavals):
     for idx, label, dataval in zip(range(len(labels)), labels, datavals):
-        dataitem=Dict()
-        dataitem.label=label
-        dataitem.data=dataval
-        dataitem.borderColor=colorset[idx]
-        dataitem.backgroundColor=colorset[idx]
+        dataitem = Dict()
+        dataitem.label = label
+        dataitem.data = dataval
+        dataitem.borderColor = colorset[idx]
+        dataitem.backgroundColor = colorset[idx]
         # dataitem.stack = None #treeshake it; defines a group
         # dataitem.borderWidth = 2 #decor parameter
         # dataitem.borderRadius = 5 #decor parameter
@@ -342,6 +315,6 @@ def datagen(labels, datavals):
 
 
 def add_dataset(chartcfg):
-    chartcfg.data.datasets=[_ for _ in datagen(labels, datavals)]
+    chartcfg.data.datasets = [_ for _ in datagen(labels, datavals)]
 
 # =============================== done ===============================

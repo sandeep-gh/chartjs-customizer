@@ -1,5 +1,20 @@
+* Journal and todos
+** TODO stackW in cfgpanel_sbs for gutter width
+
 * enough
 ** all ColorSelector  should be populated have default value
+
+* Vocabulary
+** cfgattrmeta
+a really bad name
+-- for chartjs-config-attributes and its metadata details.
+** cjs_cfg
+keeps track of user prefrences
+** ui_cfg
+keeps track of ui elements
+
+** cjs_plt_cfg
+the cfg for chartjs
 
 
 * Asthetics todo

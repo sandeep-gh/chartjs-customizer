@@ -5,7 +5,6 @@ from .cfgpanel_sbs import cfggroup_panel_
 from .chart_ui_cfg import CPT, get_baseCfgAttrMeta, update_chartCfg, update_cfgattrmeta, add_dataset, build_plt_cfg
 from aenum import extend_enum, auto
 import json
-import jsbeautifier
 from justpy_chartjs import chartjscomponents as cj
 import copy
 import re

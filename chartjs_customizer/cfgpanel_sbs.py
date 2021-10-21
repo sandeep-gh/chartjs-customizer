@@ -8,14 +8,20 @@ from webapp_framework import dur, dc, dbr, heading__gen
 from webapp_framework import MRVWLR, TaskStack, FrontendReactActionTag
 import webapp_framework as wf
 from justpy_chartjs.tags import cfg_template as ct
-from . import ui_styles
+from . import snowsty as sty
 from tailwind_tags import bg, pink, jc, db, jc, mr
-from .chart_ui_cfg import addict_walker
+from .chart_ui_cfg import addict_walker, is_visible
+#top_level_group = ["scales"]
 top_level_group = ["options"]
-tier1_level_group = {"options": ["elements"],
+tier1_level_group = {"options": ["elements"], "options": ["scales/xAxis"],
                      "data": []}
 
 
+# top_level_group = ["scales"]
+# tier1_level_group = {"scales": ["xAxis"],  # "options": ["elements"],
+#                      "data": []}
+
+logging.basicConfig(level=logging.INFO)
 # def uic_iter(label, attrmetaIter, refBoard):
 #     """
 #     label: group or subgroup label
@@ -25,8 +31,11 @@ tier1_level_group = {"options": ["elements"],
 #     return []  # don't draw anything yet
 
 
-def cfggroup_panel_(grouptag,  chartcfg, uicfg, refBoard_):
-    # =========================== begin ==========================
+def cfggroup_panel_(grouptag,  chartcfg, cfgattrmeta, refBoard_):
+    """Builds an infocard containing ui elements for cfgattrmeta belonging
+    to grouptag.
+    ui_elemts are stacked in grid.  Within the grid, they are stacked by attrmetaclass(simple/simplemore/etc.)
+    """
     dbrefBoard = Dict()
 
     def cfggroup_iter():
@@ -39,9 +48,12 @@ def cfggroup_panel_(grouptag,  chartcfg, uicfg, refBoard_):
                 if attrmeta.group == grouptag:  # TODO: should we filter based on is_active
                     return True
             return False
-        #
-        yield from filter(lambda _: is_in_group(_[0], _[1]), addict_walker(uicfg))
-    # =========================== end ===========================
+
+        yield from filter(lambda _: is_in_group(_[0], _[1]),
+                          filter(lambda _: is_visible(_[1]),
+                                 addict_walker(cfgattrmeta)
+                                 )
+                          )
 
     def subgroup_iter(tlkey, tier1key=None):
         """
@@ -56,8 +68,12 @@ def cfggroup_panel_(grouptag,  chartcfg, uicfg, refBoard_):
             """
             check if kpath belongs to group defined by tlkey/tier1key
             """
+
+            print(f"is_in_subgroup: {tlkey} {tier1keys} {kpath}")
             if tlkey in kpath:
                 res = len([True for _ in tier1keys if _ in kpath])
+                print(
+                    f"res:is_in_subgroup: {tlkey} {tier1keys} {kpath} : {res}")
                 if tier1key is None:
                     if res == 0:
                         return True
@@ -71,49 +87,79 @@ def cfggroup_panel_(grouptag,  chartcfg, uicfg, refBoard_):
 
         yield from filter(lambda _: is_in_subgroup(_[0]), cfggroup_iter())
     # ============================ end ===========================
+
     top_level_ui = {"options":
                     wf.register(dbrefBoard,
-                                wf.fc.StackV_("options",
+                                wf.hc.StackW_("options",
                                               wf.uic_iter("options",
                                                           subgroup_iter(
                                                               "options", None),
                                                           refBoard_
                                                           ),
-                                              pcp=ui_styles.cfgpanels.options
+                                              pcp=sty.cfgpanels.options
                                               )
                                 )
                     }
-    tier1_level_ui = {"options":
-                      {"elements": wf.register(dbrefBoard,
-                                               wf.fc.StackV_("options/elements",
-                                                             wf.uic_iter("options/elements",
-                                                                         subgroup_iter(
-                                                                             "options", "elements"),
-                                                                         refBoard_),
-                                                             pcp=ui_styles.cfgpanels.options_child
-                                                             )
-                                               )
-                       }
-                      }
+    tier1_level_ui = Dict()
+
+    for key in top_level_group:
+        for kk in tier1_level_group[key]:
+            kk_panel = wf.register(dbrefBoard,
+                                   wf.hc.StackW_(f"{key}/{kk}",
+                                                 wf.uic_iter("{key}/{kk}",
+                                                             subgroup_iter(
+                                                                 f"{key}", f"{kk}"),
+                                                             refBoard_),
+                                                 pcp=sty.cfgpanels.options_child
+                                                 )
+                                   )
+            print(kk_panel)
+            tier1_level_ui[key][kk] = kk_panel
+
+    # tier1_level_ui = {"options":
+    #                   {"elements": wf.register(dbrefBoard,
+    #                                            wf.hc.StackW_("options/elements",
+    #                                                          wf.uic_iter("options/elements",
+    #                                                                      subgroup_iter(
+    #                                                                          "options", "elements"),
+    #                                                                      refBoard_),
+    #                                                          pcp=sty.cfgpanels.options_child
+    #                                                          )
+    #                                            )
+    #                    }
+    #                   }
 
     def cfgblks_iter():
         for k, v in top_level_ui.items():
 
-            yield v
+            yield wf.hc.Subsection_(k, k, v)
+            # yield v
             for kk, vv in tier1_level_ui[k].items():
+                yield wf.hc.Subsection_(kk, f"{k}/{kk}", vv)
 
-                yield vv
+                # yield vv
 
     def on_submit_click(dbref, msg):
         rts = TaskStack()
         rts.addTask(FrontendReactActionTag.UpdateChart, None)
         pass
-    heading_ = heading__gen(
-        f"Configure Chart: {grouptag.value} chart config options")
-    cfgblks_ = dc.StackG_("cfgpanel", cgens=cfgblks_iter(),
-                          pcp=ui_styles.cfgpanels.cfgpanel)
-    submit_ = dur.divbutton_(
-        f"{grouptag.value}Submit",  f"{grouptag.value}submit", "submit", on_submit_click)
-    ic_ = dc.Infocard_(f'ic{grouptag.value}',  cgens=[
-        heading_, cfgblks_, submit_], pcp=ui_styles.cfgpanels.infocard)
-    return ic_
+    # heading_ = heading__gen(
+    #     f"Configure Chart: {grouptag.value} chart config options")
+    # cfgblks_ = dc.StackG_("cfgpanel", cgens=cfgblks_iter(),
+    #                       pcp=ui_styles.cfgpanels.cfgpanel)
+
+    cfgblks_ = wf.hc.StackV_("cfgpanel", cgens=cfgblks_iter(),
+                             pcp=sty.cfgpanels.cfgpanel)
+
+    # submit_ = dur.divbutton_(
+    #     f"{grouptag.value}Submit",  f"{grouptag.value}submit", "submit", on_submit_click)
+    submit_ = wf.hc.Wrapdiv_(wf.hc.Button_(
+        "Submit",  "Submit", "Config Chart", on_submit_click))
+    # ic_ = dc.Infocard_(f'ic{grouptag.value}',  cgens=[
+    #     heading_, cfgblks_, submit_], pcp=sty.cfgpanels.infocard)
+
+    ic_ = wf.hc.StackV_(f'ic',  cgens=[
+        cfgblks_, submit_], pcp=sty.infocard)
+    controlpanel_ = wf.hc.Subsection_(f"controlpanel{grouptag.value}",
+                                      "Configure chart", ic_)
+    return controlpanel_
