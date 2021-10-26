@@ -56,7 +56,12 @@ def launcher(request):
     dockbar_ = Dockbar.build_dockbar_('dockbar')
     cfgpanel_simple_ = build_cfgpanel_("simple", chartcfg)
     cfgpanel_simplemore_ = build_cfgpanel_("simplemore", chartcfg)
-    tlc_ = dc.StackG_("analysisPanel", 4, 6,  cgens=[cfgpanel_simple_, cfgpanel_simplemore_],
+    cfgpanel_nitpick_ = build_cfgpanel_("nitpick", chartcfg)
+    cfgpanel_advanced_ = build_cfgpanel_("advanced", chartcfg)
+    cfgpanel_ocd_ = build_cfgpanel_("ocd", chartcfg)
+    #cfgpanel_advanced_ = build_cfgpanel_("ocd", chartcfg)
+
+    tlc_ = dc.StackG_("analysisPanel", 4, 6,  cgens=[cfgpanel_simple_, cfgpanel_simplemore_, cfgpanel_nitpick_, cfgpanel_advanced_, cfgpanel_ocd_],
                       pcp=ui_styles.analysisPanel)
 
     opts = jsbeautifier.default_options()
@@ -71,6 +76,7 @@ def launcher(request):
     dbref_noticeboard = dbr.Noticebord_("noticeboard")(wp, "")
 
     logger.info("end profiling")
+    print(" data\-", chartcfg)
 
     def locate_de(detag):
         '''

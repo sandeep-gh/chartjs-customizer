@@ -84,7 +84,11 @@ def build_cfgpanel_(cfgtype, chartcfg):
             case "<aenum 'Position'>":
                 print("matching Position ")
                 #selectWbanner = Stack
-                return dc.Select_(kpath, options=['a', 'b'], values=['a', 'b'], on_select=no_action)
+                return dur.wrapdiv_(kpath+"Wrap", dbr.SelectorWBanner_(kpath, key,
+                                                                       options=[
+                                                                           _.value for _ in cfgattr.vtype],
+                                                                       values=[_.value for _ in cfgattr.vtype], on_select=no_action)
+                                    )
 
         return None
 
@@ -126,10 +130,10 @@ def build_cfgpanel_(cfgtype, chartcfg):
     top_level_ui = {"options": dc.StackV_("options", ui_iter_for_cfgcategory(
         "options", None), pcp=ui_styles.cfgpanels.options), "data": dc.StackV_("data")}
     tier1_level_ui = {"options":
-                      {  # "elements": dc.StackV_("options/elements", ui_iter_for_cfgcategory("options", "elements"), pcp=ui_styles.cfgpanels.options_child),
+                      {"elements": dc.StackV_("options/elements", ui_iter_for_cfgcategory("options", "elements"), pcp=ui_styles.cfgpanels.options_child),
                           "scales/xAxis": dc.StackV_("options/scales/xAxis", ui_iter_for_cfgcategory("options", "scales/xAxis"), pcp=ui_styles.cfgpanels.options_child),
                           "scales/yAxis": dc.StackV_("options/scales/yAxis", ui_iter_for_cfgcategory("options", "scales/yAxis"), pcp=ui_styles.cfgpanels.options_child)
-                      },
+                       },
                       "data": {}
                       }
 
@@ -174,13 +178,15 @@ def build_cfgpanel_(cfgtype, chartcfg):
 
         opts = jsbeautifier.default_options()
         res = jsbeautifier.beautify(json.dumps(chartcfg), opts)
-        # print(res)
+        print(res)
+        print("new chart position = ", dget(
+            chartcfg, "/options/plugins/legend/position"))
         rts = TaskStack()
         rts.addTask(FrontendReactActionTag.UpdateChart, Dict({'chartcfg':
                                                               chartcfg}))
         return msg.page, rts
 
-    heading_ = heading__gen("Required configs")
+    heading_ = heading__gen(f"Configure Chart: {cfgtype} config")
     cfgblks_ = dc.StackG_("cfgpanel", cgens=cfgblks_iter(),
                           pcp=ui_styles.cfgpanels.cfgpanel)
     submit_ = dur.divbutton_(
