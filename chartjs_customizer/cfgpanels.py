@@ -1,6 +1,6 @@
-# from framework_looprunner import MRVWLR
-# from taskstack import TaskStack
-# from frontendreactactiontag import FrontendReactActionTag
+#from framework_looprunner import MRVWLR
+#from taskstack import TaskStack
+#from frontendreactactiontag import FrontendReactActionTag
 import logging
 import json
 from dpath.util import get as dget
@@ -28,9 +28,17 @@ def build_cfgpanel_(cfgtype, chartcfg):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
+    def cfgattr_iter(cfgtype):
+        for kpath, cfgattr in ct.walker(cfg):
+            #print ("cfgattr_iter : ", kpath, " ", cfgattr)
+
+            if "/data/datasets" not in kpath:
+
+                if cfgattr.decor_type.value == cfgtype:
+                    yield (kpath, cfgattr)
+
     def get_input_ui(kpath, key,  cfgattr):
         print("need to probe ", kpath, cfgattr)
-            # print ("cfgattr_iter : ", kpath, " ", cfgattr)
         default_val = dget(chartcfg, kpath)
 
         match str(cfgattr.vtype):
@@ -75,7 +83,7 @@ def build_cfgpanel_(cfgtype, chartcfg):
                 return dur.wrapdiv_(kpath+"Wrap", dc.ToggleBtn_(kpath, key, value=default_val))
             case "<aenum 'Position'>":
                 print("matching Position ")
-                selectWbanner = dc.StackH_("")
+                #selectWbanner = Stack
                 return dc.Select_(kpath, options=['a', 'b'], values=['a', 'b'], on_select=no_action)
 
         return None
@@ -90,16 +98,16 @@ def build_cfgpanel_(cfgtype, chartcfg):
             """
             check if kpath belongs to tlkey/tier1key
             """
-            tier1keys = tier1_level_group[tlkey]
+            if tlkey in kpath:
                 res = len([True for _ in tier1keys if _ in kpath])
-            tier1keys=[tier1key]
+                if tier1key is not None:
                     if res > 0:
                         return True
                 else:
                     if res == 0:
                         return True
             return False
-                res=len([True for _ in tier1keys if _ in kpath])
+        yield from filter(lambda _: filter_by_category(_[0]), cfgattr_iter(cfgtype))
 
     def ui_iter_for_cfgcategory(tlkey, tier1key=None):
         headingkey = tlkey
@@ -110,22 +118,22 @@ def build_cfgpanel_(cfgtype, chartcfg):
         def build_ui_cfgattr(kpath, cfgattr):
             _ = kpath.split("/")
             return get_input_ui(kpath, _[-2]+"/"+_[-1], cfgattr)
-        headingkey=tlkey
+        yield from filter(lambda _: _ is not None,
                           map(lambda _: build_ui_cfgattr(_[0], _[1]),
-            headingkey=tlkey + "/" + tier1key
+                              cfg_category_iter(tlkey, tier1key))
                           )
 
     top_level_ui = {"options": dc.StackV_("options", ui_iter_for_cfgcategory(
-            _=kpath.split("/")
+        "options", None), pcp=ui_styles.cfgpanels.options), "data": dc.StackV_("data")}
     tier1_level_ui = {"options":
                       {  # "elements": dc.StackV_("options/elements", ui_iter_for_cfgcategory("options", "elements"), pcp=ui_styles.cfgpanels.options_child),
                           "scales/xAxis": dc.StackV_("options/scales/xAxis", ui_iter_for_cfgcategory("options", "scales/xAxis"), pcp=ui_styles.cfgpanels.options_child),
                           "scales/yAxis": dc.StackV_("options/scales/yAxis", ui_iter_for_cfgcategory("options", "scales/yAxis"), pcp=ui_styles.cfgpanels.options_child)
                       },
                       "data": {}
-    top_level_ui={"options": dc.StackV_("options", ui_iter_for_cfgcategory(
+                      }
 
-    tier1_level_ui={"options":
+    def cfgblks_iter():
         for k, v in top_level_ui.items():
 
             yield v
@@ -146,34 +154,34 @@ def build_cfgpanel_(cfgtype, chartcfg):
                 dbref_t1c = dbref_cfgpanel.getItem(catkey + "/" + subcatkey)
                 for _ in cfg_category_iter(catkey, subcatkey):
                     dbref_ce = dbref_t1c.getItemUnwrapped(_[0])
-            dbref_tlc=dbref_cfgpanel.getItem(catkey)
+                    yield (_[0], dbref_ce)
 
-                dbref_ce=dbref_tlc.getItemUnwrapped(_[0])
+    @MRVWLR
     def on_submit_click(dbref, msg):
         print("on submit click")
-                dbref_t1c=dbref_cfgpanel.getItem(catkey + "/" + subcatkey)
+        dbref_ic = dbref.get_tlw().ediv
         print("dbref_ic = ", dbref_ic)
-                    dbref_ce=dbref_t1c.getItemUnwrapped(_[0])
+        dbref_cfgpanel = dbref_ic.getItem("cfgpanel")
         print("cfgpanel = ", dbref_cfgpanel)
         for _ in cfgtype_iter(dbref_cfgpanel):
-    @ MRVWLR
+            kpath, kdbref = _  # kdbref: the dbref corresponding to kpath
             # edit chartcfg
             print(_)
-        dbref_ic=dbref.get_tlw().ediv
+            kval = kdbref.getValue()
             print(kpath, kdbref, kval)
-        dbref_cfgpanel=dbref_ic.getItem("cfgpanel")
+            if kval != "" or kval is not None:
                 dset(chartcfg, kpath, kval)
 
-            kpath, kdbref=_  # kdbref: the dbref corresponding to kpath
+        opts = jsbeautifier.default_options()
         res = jsbeautifier.beautify(json.dumps(chartcfg), opts)
         # print(res)
-            kval=kdbref.getValue()
+        rts = TaskStack()
         rts.addTask(FrontendReactActionTag.UpdateChart, Dict({'chartcfg':
                                                               chartcfg}))
         return msg.page, rts
 
-        opts=jsbeautifier.default_options()
-        res=jsbeautifier.beautify(json.dumps(chartcfg), opts)
+    heading_ = heading__gen("Required configs")
+    cfgblks_ = dc.StackG_("cfgpanel", cgens=cfgblks_iter(),
                           pcp=ui_styles.cfgpanels.cfgpanel)
     submit_ = dur.divbutton_(
         f"{cfgtype}Submit",  f"{cfgtype}_submit", "submit", on_submit_click)
