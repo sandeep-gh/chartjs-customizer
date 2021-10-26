@@ -12,7 +12,7 @@ from webapp_framework import MRVWLR, TaskStack, FrontendReactActionTag
 from justpy_chartjs.tags import cfg_template as ct
 from chartcfg_builder import cfg, chartcfg
 import ui_styles
-from tailwind_tags import bg, pink, jc
+from tailwind_tags import bg, pink, jc, db, jc, mr
 
 
 def no_action(dbref, msg):
@@ -29,8 +29,10 @@ def build_cfgpanel_(cfgtype, chartcfg):
     logger.setLevel(logging.INFO)
 
     def cfgattr_iter(cfgtype):
+        """
+        iter over cfgattr in cfg restricted to cfgtype
+        """
         for kpath, cfgattr in ct.walker(cfg):
-            #print ("cfgattr_iter : ", kpath, " ", cfgattr)
 
             if "/data/datasets" not in kpath:
 
@@ -38,19 +40,17 @@ def build_cfgpanel_(cfgtype, chartcfg):
                     yield (kpath, cfgattr)
 
     def get_input_ui(kpath, key,  cfgattr):
-        print("need to probe ", kpath, cfgattr)
         default_val = dget(chartcfg, kpath)
-
         match str(cfgattr.vtype):
             case "<class 'int'>":
 
                 match cfgattr.vrange:
                     case type():
-                        # int, float or string type
                         return dc.TextInput_(kpath, key, cfgattr.default, no_action)
                     case[x, y]:
-                        return None  # not handling ranges
+                        return dur.wrapdiv_(kpath+"Wrap", dc.Slider_(kpath, range(x, y), cfgattr.default), [db.f, jc.center, mr/2])
                     case _:
+                        print("skipping ", kpath)
                         return None  # not handling multi-attribute ranges
 
             case "<class 'str'>":
@@ -58,38 +58,34 @@ def build_cfgpanel_(cfgtype, chartcfg):
                     case type():
                         return dc.TextInput_(kpath, key, default_val, no_action, pcp=[])
                     case[x, y]:
+                        print("skipping ", kpath)
                         return None
                     case _:
+                        print("skipping ", kpath)
                         return None
             case "<class 'float'>":
                 match cfgattr.vrange:
                     case type():
                         return dc.TextInput_(kpath, key, default_val, no_action, pcp=[])
                     case[x, y]:
+                        print("skipping float range", kpath)
                         return None
                     case _:
+                        print("skipping ", kpath)
                         return None
 
             case "<aenum 'Color'>":
-                print("matching cfg_template.Color")
-
-                def getValue(dbref_stackv, kpath=kpath):
-                    dbref_cs = dbref_stackv.getItem(kpath)
-                    return dbref_cs.getValue()
                 return dbr.ColorSelectorWBanner_(kpath, pcp=[jc.center])
 
             case "<class 'bool'>":
-                print("matching bool")
                 return dur.wrapdiv_(kpath+"Wrap", dc.ToggleBtn_(kpath, key, value=default_val))
             case "<aenum 'Position'>":
-                print("matching Position ")
-                #selectWbanner = Stack
                 return dur.wrapdiv_(kpath+"Wrap", dbr.SelectorWBanner_(kpath, key,
                                                                        options=[
                                                                            _.value for _ in cfgattr.vtype],
                                                                        values=[_.value for _ in cfgattr.vtype], on_select=no_action)
                                     )
-
+        print("skipping ", kpath)
         return None
 
     def cfg_category_iter(tlkey, tier1key=None):
@@ -98,20 +94,24 @@ def build_cfgpanel_(cfgtype, chartcfg):
         else:
             tier1keys = [tier1key]
 
-        def filter_by_category(kpath):
+        def is_in_category(kpath):
             """
             check if kpath belongs to tlkey/tier1key
             """
             if tlkey in kpath:
                 res = len([True for _ in tier1keys if _ in kpath])
-                if tier1key is not None:
-                    if res > 0:
-                        return True
-                else:
+                if tier1key is None:
                     if res == 0:
                         return True
-            return False
-        yield from filter(lambda _: filter_by_category(_[0]), cfgattr_iter(cfgtype))
+                    else:
+                        return False  # kpath belongs to subcategory
+                else:
+                    if res > 0:
+                        return True
+                    else:
+                        return False
+
+        yield from filter(lambda _: is_in_category(_[0]), cfgattr_iter(cfgtype))
 
     def ui_iter_for_cfgcategory(tlkey, tier1key=None):
         headingkey = tlkey
@@ -178,9 +178,7 @@ def build_cfgpanel_(cfgtype, chartcfg):
 
         opts = jsbeautifier.default_options()
         res = jsbeautifier.beautify(json.dumps(chartcfg), opts)
-        print(res)
-        print("new chart position = ", dget(
-            chartcfg, "/options/plugins/legend/position"))
+        # print(res)
         rts = TaskStack()
         rts.addTask(FrontendReactActionTag.UpdateChart, Dict({'chartcfg':
                                                               chartcfg}))
