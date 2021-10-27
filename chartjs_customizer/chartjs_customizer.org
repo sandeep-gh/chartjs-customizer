@@ -1,0 +1,4 @@
+* enough
+** all ColorSelector  should be populated have default value
+** 
+
