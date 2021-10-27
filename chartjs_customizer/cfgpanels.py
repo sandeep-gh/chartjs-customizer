@@ -48,7 +48,13 @@ def build_cfgpanel_(cfgtype, chartcfg):
                     case type():
                         return dc.TextInput_(kpath, key, cfgattr.default, no_action)
                     case[x, y]:
-                        return dur.wrapdiv_(kpath+"Wrap", dc.Slider_(kpath, range(x, y), cfgattr.default), [db.f, jc.center, mr/2])
+                        return dur.wrapdiv_(kpath+"Wrap",
+                                            dbr.WithBanner_(
+                                                kpath, dc.Slider_(kpath, range(
+                                                    x, y), cfgattr.default), key,
+                                            ), [db.f, jc.center, mr/2]
+                                            )
+
                     case _:
                         print("skipping ", kpath)
                         return None  # not handling multi-attribute ranges
@@ -75,7 +81,7 @@ def build_cfgpanel_(cfgtype, chartcfg):
                         return None
 
             case "<aenum 'Color'>":
-                return dbr.ColorSelectorWBanner_(kpath, pcp=[jc.center])
+                return dbr.ColorSelectorWBanner_(kpath, key, pcp=[jc.center])
 
             case "<class 'bool'>":
                 return dur.wrapdiv_(kpath+"Wrap", dc.ToggleBtn_(kpath, key, value=default_val))

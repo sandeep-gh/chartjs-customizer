@@ -64,9 +64,9 @@ def launcher(request):
     tlc_ = dc.StackG_("analysisPanel", 4, 6,  cgens=[cfgpanel_simple_, cfgpanel_simplemore_, cfgpanel_nitpick_, cfgpanel_advanced_, cfgpanel_ocd_],
                       pcp=ui_styles.analysisPanel)
 
-    opts = jsbeautifier.default_options()
-    res = jsbeautifier.beautify(json.dumps(chartcfg), opts)
-    print(res)
+    # opts = jsbeautifier.default_options()
+    # res = jsbeautifier.beautify(json.dumps(chartcfg), opts)
+    # print(res)
     pltcanvas_ = cj.ChartJS_("pltcanvas", pcp=[], options=chartcfg)
     rootde_ = dc.StackV_(
         "rootde",  cgens=[dockbar_, pltcanvas_, tlc_], pcp=ui_styles.rootde)
