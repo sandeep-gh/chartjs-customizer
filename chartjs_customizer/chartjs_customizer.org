@@ -1,4 +1,10 @@
 * enough
 ** all ColorSelector  should be populated have default value
-** 
+
+
+* Asthetics todo
+select box color gray/1
+
+
+
 

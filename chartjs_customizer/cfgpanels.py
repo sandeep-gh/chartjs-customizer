@@ -10,7 +10,7 @@ from addict import Dict
 from webapp_framework import dur, dc, dbr, heading__gen
 from webapp_framework import MRVWLR, TaskStack, FrontendReactActionTag
 from justpy_chartjs.tags import cfg_template as ct
-from chartcfg_builder import cfg, chartcfg
+from chartcfg_builder import cfg
 import ui_styles
 from tailwind_tags import bg, pink, jc, db, jc, mr
 
@@ -64,20 +64,20 @@ def build_cfgpanel_(cfgtype, chartcfg):
                     case type():
                         return dc.TextInput_(kpath, key, default_val, no_action, pcp=[])
                     case[x, y]:
-                        print("skipping ", kpath)
+                        print("skipping str", kpath)
                         return None
                     case _:
-                        print("skipping ", kpath)
+                        print("skipping str", kpath)
                         return None
             case "<class 'float'>":
                 match cfgattr.vrange:
                     case type():
                         return dc.TextInput_(kpath, key, default_val, no_action, pcp=[])
                     case[x, y]:
-                        print("skipping float range", kpath)
+                        print("skipping float", kpath)
                         return None
                     case _:
-                        print("skipping ", kpath)
+                        print("skipping float", kpath)
                         return None
 
             case "<aenum 'Color'>":
