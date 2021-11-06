@@ -198,4 +198,5 @@ def build_cfgpanel_(cfgtype, chartcfg):
 
     ic_ = dc.Infocard_(f'ic{cfgtype}',  cgens=[
                        heading_, cfgblks_, submit_], pcp=ui_styles.cfgpanels.infocard)
+
     return ic_

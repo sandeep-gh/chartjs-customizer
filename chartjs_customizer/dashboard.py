@@ -53,7 +53,6 @@ def launcher(request):
     wp.head_html = """<script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.js" > </script >\n    <link href = "https://unpkg.com/tailwindcss/dist/tailwind.min.css" rel = "stylesheet" >"""
     wp.tailwind = True
     wp.model = Dict(track_changes=True)
-
     dockbar_ = Dockbar.build_dockbar_('dockbar')
     cfgpanel_simple_ = build_cfgpanel_("simple", chartcfg)
     cfgpanel_simplemore_ = build_cfgpanel_("simplemore", chartcfg)
