@@ -4,7 +4,7 @@ from addict import Dict
 from webapp_framework import dur, dc, dbr, Dockbar, FrontendReactActionTag
 from justpy_chartjs import chartjscomponents as cj
 from chartcfg_builder import chartcfg
-from cfgpanels import build_cfgpanel_
+from cfgpanels_v2 import build_cfgpanel_
 import ui_styles
 import jsbeautifier
 import json

@@ -1,9 +1,13 @@
 from addict import Dict
+from dpath.util import get as dget
+from dpath.util import set as dset
+
 import justpy as jp
 import webapp_framework as wf
 import ui_styles as sty
 import tailwind_tags as tw
 import pprint
+from .session_data import session_data
 
 
 def no_action(dbref, msg):
@@ -20,11 +24,11 @@ sample_data = [[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}],
                ]
 
 
-def launcher():
-
+def launcher(request):
     wp = jp.QuasarPage()
     wp.tailwind = True
     wp.head_html = """<script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.js" > </script >\n    <link href = "https://unpkg.com/tailwindcss/dist/tailwind.min.css" rel = "stylesheet" >"""
+
     tlc = jp.Div(a=wp, classes=tw.tstr(*sty.tlc))
     refBoard = Dict()
     # =================== db for chart label input ===================
@@ -57,14 +61,14 @@ def launcher():
                     )
     )
 
-    xAxisKey_ = wf.register(refBoard_,
-                            wf.fc.TextInput_(
-                                "/options/parsing/xAxisKey", "parsing/xAxisKey", "x", no_action)
-                            )
-    yAxisKey_ = wf.register(refBoard_,
-                            wf.fc.TextInput_(
-                                "/options/parsing/yAxisKey", "parsing/yAxisKey", "y", no_action)
-                            )
+    # xAxisKey_ = wf.register(refBoard_,
+    #                         wf.fc.TextInput_(
+    #                             "/options/parsing/xAxisKey", "parsing/xAxisKey", "x", no_action)
+    #                         )
+    # yAxisKey_ = wf.register(refBoard_,
+    #                         wf.fc.TextInput_(
+    #                             "/options/parsing/yAxisKey", "parsing/yAxisKey", "y", no_action)
+    #                         )
 
     heading_ = wf.heading__gen("Configure Chart: Initial Config")
     panel_ = wf.dc.StackG_("panel", cgens=[plottype_, xAxisKey_, yAxisKey_],
@@ -75,9 +79,24 @@ def launcher():
         print("data labels = ", refBoard.label.val)
         print("data  = ", refBoard.data.val)
         print("data  = ", refBoard.initialcfg["/type"].val)
-        print("data  = ", refBoard.initialcfg["/options/parsing/xAxisKey"].val)
-        print("data  = ", refBoard.initialcfg["/options/parsing/yAxisKey"].val)
+        # print("data  = ", refBoard.initialcfg["/options/parsing/xAxisKey"].val)
+        # print("data  = ", refBoard.initialcfg["/options/parsing/yAxisKey"].val)
 
+        cfgctx = Dict()
+        cfgctx.plttype = ct.PlotType.Line
+        cfgctx.xaxis_type = ct.ScaleType.Linear
+        cfgctx.xaxis_title = "xaxis"
+        cfgctx.yaxis_title = "yaxis"
+        cfgctx.plot_title = "plot title"
+        cfg = ct.build_pltcfg(cfgctx)
+        chartcfg = ct.build_cfg(cfg, refBoard.label.val, refBoard.data.val)
+        dset(chartcfg, "/type", refBoard.initialcfg["/type"].val)
+        # dset(chartcfg, "/options/parsing/xAxisKey",
+        #      refBoard.initialcfg["/options/parsing/xAxisKey"].val)
+        # dset(chartcfg, "/options/parsing/yAxisKey",
+        #      refBoard.initialcfg["/options/parsing/yAxisKey"].val)
+
+        session_data[request.session_id] = chartcfg
         pass
     submit_ = wf.dur.divbutton_(
         "Submit",  "Submit", "Build Chart", on_submit_click)
