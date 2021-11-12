@@ -1,42 +1,75 @@
 from addict import Dict
-from chartjs_customizer.responsive import Color, AttrMeta, CPT, update_cfg_attrMeta
+from chartjs_customizer.chart_ui_cfg import *
 
 
-cfgMeta = Dict(track_changes=True)
+cjs_cfg = Dict(track_changes=True)
+ui_cfg = Dict(track_changes=True)
+cfgAttrMeta = get_baseCfgAttrMeta()
+update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
 
-cfgMeta.options.scales.xAxis.grid.display = False
-_ = cfgMeta.options.scales.xAxis
+cjs_cfg.clear_changed_history()
+cjs_cfg.type = PlotType.Line
 
-_.grid.color = AttrMeta("", Color, Color, CPT.simple, True)
-_.grid.borderColor = AttrMeta("", Color, Color, CPT.nitpick, True)
-_.grid.tickColor = AttrMeta("", Color, Color, CPT.simplemore, True)
-_.grid.circular = AttrMeta(
-    None, None, None, CPT.TBD, True)  # from for radar chart
+# update cfgattrmeta --> when value in cjs_cfg is change
+update_cfgattrmeta_chartcfg(cjs_cfg, cfgAttrMeta)
 
-cfgMeta.clear_changed_history()
+for kpath in cfgAttrMeta.get_changed_history():
+    print(kpath, " ", dget(cfgAttrMeta, kpath))
 
+update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
 
-def iter_cfgMeta(cfgMeta, prefix=""):
-    for attr, val in cfgMeta.items():
-        if isinstance(val, Dict):
-            yield from iter_CfgMeta(val, f"{prefix}/{attr}")
-        else:
-            yield (f"{prefix}/{attr}", val)
+# The update_cfgattrmeta_chartcfg and update_chartCfg should
+# happen in loop until ad-infinitum
+for kpath in cjs_cfg.get_changed_history():
+    print(kpath, " ", dget(cjs_cfg, kpath))
 
+cjs_cfg.clear_changed_history()
 
-def build_chart_ui_cfg(cfgMetaIter):
-    chartcfg = Dict()
-    uicfg = Dict()
-    for kpath, attrMeta in cfgMetaIter:
-        is_disabled, default_val = attrMeta_eval(cfgMetaIter)
-        dset(kpath, uicfg, [is_disabled, default_val])
-        if not is_disabled:
-            dset(kpath, chartcfg, default_val)
+# now go back in revese <--> all grid references should go away
+cjs_cfg.type = None
+update_cfgattrmeta_chartcfg(cjs_cfg, cfgAttrMeta)
 
-    return [uicfg, chartcfg]
+update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
 
 
-update_cfg_attrMeta("/options/scales/xAxis/grid/display", True, cfgMeta)
+#from chartjs_customizer.responsive import Color, AttrMeta, CPT, update_cfg_attrMeta
 
-for kpath in cfgMeta.get_changed_history():
-    print(kpath)
+
+#cfgMeta = Dict(track_changes=True)
+
+# cfgMeta.options.scales.xAxis.grid.display = False
+# _ = cfgMeta.options.scales.xAxis
+
+# _.grid.color = AttrMeta("", Color, Color, CPT.simple, True)
+# _.grid.borderColor = AttrMeta("", Color, Color, CPT.nitpick, True)
+# _.grid.tickColor = AttrMeta("", Color, Color, CPT.simplemore, True)
+# _.grid.circular = AttrMeta(
+#     None, None, None, CPT.TBD, True)  # from for radar chart
+
+# cfgMeta.clear_changed_history()
+
+
+# def iter_cfgMeta(cfgMeta, prefix=""):
+#     for attr, val in cfgMeta.items():
+#         if isinstance(val, Dict):
+#             yield from iter_CfgMeta(val, f"{prefix}/{attr}")
+#         else:
+#             yield (f"{prefix}/{attr}", val)
+
+
+# def build_chart_ui_cfg(cfgMetaIter):
+#     chartcfg = Dict()
+#     uicfg = Dict()
+#     for kpath, attrMeta in cfgMetaIter:
+#         is_disabled, default_val = attrMeta_eval(cfgMetaIter)
+#         dset(kpath, uicfg, [is_disabled, default_val])
+#         if not is_disabled:
+#             dset(kpath, chartcfg, default_val)
+
+#     return [uicfg, chartcfg]
+
+
+# update_cfg_attrMeta("/options/scales/xAxis/grid/display", True, cfgMeta)
+
+# for kpath in cfgMeta.get_changed_history():
+#     print(kpath)
