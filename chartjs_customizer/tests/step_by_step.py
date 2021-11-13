@@ -1,24 +1,36 @@
+import sys
+import importlib
 from addict import Dict
 from chartjs_customizer.chart_ui_cfg import *
 
+from chartjs_customizer.dashboard_step_by_step import launcher
+from chartjs_customizer import dashboard_step_by_step as dashboard
+
+
+from chartjs_customizer import getChartdata_sbs_wp as getChartdata_wp
+importlib.reload(getChartdata_wp)
+wp = getChartdata_wp.launcher(None)
+
+importlib.reload(dashboard)
+dashboard.launcher(None)
 
 cjs_cfg = Dict(track_changes=True)
 ui_cfg = Dict(track_changes=True)
 cfgAttrMeta = get_baseCfgAttrMeta()
 update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
-
+# ui will change cjs_cfg here: hidden will become unhidden
 cjs_cfg.clear_changed_history()
 cjs_cfg.type = PlotType.Line
 
-# update cfgattrmeta --> when value in cjs_cfg is change
-update_cfgattrmeta_chartcfg(cjs_cfg, cfgAttrMeta)
+# update cfgattrmeta --> when value in cjs_cfg  changes
+update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
 
 for kpath in cfgAttrMeta.get_changed_history():
     print(kpath, " ", dget(cfgAttrMeta, kpath))
 
 update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
 
-# The update_cfgattrmeta_chartcfg and update_chartCfg should
+# The update_cfgattrmeta and update_chartCfg should
 # happen in loop until ad-infinitum
 for kpath in cjs_cfg.get_changed_history():
     print(kpath, " ", dget(cjs_cfg, kpath))
@@ -27,7 +39,7 @@ cjs_cfg.clear_changed_history()
 
 # now go back in revese <--> all grid references should go away
 cjs_cfg.type = None
-update_cfgattrmeta_chartcfg(cjs_cfg, cfgAttrMeta)
+update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
 
 update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
 

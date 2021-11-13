@@ -2,11 +2,21 @@
 from addict import Dict
 from typing import NamedTuple, Any
 from webapp_framework.uic_generator_attrMeta import AttrMeta
-from justpy_chartjs.tags.cfg_template import Color, CPT
+#from justpy_chartjs.tags.cfg_template import Color
 from justpy_chartjs.tags.style_values import Align, Position
 from justpy_chartjs.tags.style_values import Axis
 from aenum import Enum, auto
-from dpath.util import get as dget, set as dset, new as dnew
+from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
+from dpath.exceptions import PathNotFound
+
+
+def addict_walker(adict, ppath=""):
+    for key, value in adict.items():
+        if isinstance(value, Dict):
+            yield from addict_walker(value, ppath + f"/{key}")
+        else:
+            yield (f"{ppath}/{key}", value)
+            pass
 
 
 class Color(Enum):
@@ -24,6 +34,8 @@ class CPT(Enum):
     required = "required"
     TBD = "tbd"
     ninja = "ninja"
+    initial = "initial"
+    all = "all"
 
 
 class AttrMeta(NamedTuple):
@@ -33,7 +45,7 @@ class AttrMeta(NamedTuple):
     default: Any
     vtype: Any
     vrange: Any
-    decor_type: Any
+    group: Any
     active: Any
 
 
@@ -55,7 +67,8 @@ class PlotType(Enum):
 # =========================== func def ===========================
 def get_baseCfgAttrMeta():
     _base = cfgAttrMeta_base = Dict(track_changes=True)
-    _base.type = AttrMeta(PlotType.Undef, PlotType, PlotType, CPT.simple, True)
+    _base.type = AttrMeta(PlotType.Undef, PlotType,
+                          PlotType, CPT.initial, True)
     _base.options.responsive = AttrMeta(
         True, bool, bool, CPT.perf, True)
     _base.options.aspectRatio = AttrMeta(
@@ -65,8 +78,8 @@ def get_baseCfgAttrMeta():
     _base.options.devicePixelRatio = AttrMeta(
         1, int, [1, 5], CPT.advanced, True)
     _base.options.parsing = AttrMeta(False, FalseDict,
-                                     {
-                                     }, CPT.advanced, True)
+                                     {'xAxisKey': {}, 'yAxisKey': {}
+                                      }, CPT.initial, True)
 
     #_base.options.plugins = Dict()
     #_base.options.plugins.legend = Dict()
@@ -135,6 +148,16 @@ def update_chartCfg(cfgattrmeta, cjs_cfg, ui_cfg):
     value of ui_cfg is a tuple (bool, default_value). In the 
     cjs_cfg is what gets shipped to chartjs.
     """
+
+    # remove everything thats changed and put it
+    # back in only the active ones: this enables deletion
+    for kpath in cfgattrmeta.get_changed_history():
+        print("removing ", kpath)
+        try:
+            dpop(cjs_cfg, kpath, None)
+        except PathNotFound:
+            pass
+
     def is_active(kpath):
         attrmeta = dget(cfgattrmeta, kpath)
         return attrmeta.active
@@ -197,8 +220,8 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta):
 
 
 # ============================= func def ============================
-def update_cfgattrmeta_chartcfg(chartcfg, cfgAttrMeta):
+def update_cfgattrmeta(chartcfg, cfgAttrMeta):
     for kpath in chartcfg.get_changed_history():
-        update_cfgattrmeta_kpath(kpath, dget(cjs_cfg, kpath), cfgAttrMeta)
+        update_cfgattrmeta_kpath(kpath, dget(chartcfg, kpath), cfgAttrMeta)
     chartcfg.clear_changed_history()
 # ================== end update_cfgattrmeta_chartcfg =================
