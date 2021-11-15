@@ -1,17 +1,20 @@
-from chart_ui_cfg import CPT, addict_walker, get_baseCfgAttrMeta, update_chartCfg
+import pprint
+from aenum import extend_enum, auto
 from addict import Dict
-from dpath.util import get as dget, set as dset, delete as dpop, new as dnew
-
+from dpath.util import get as dget, set as dset,  new as dnew
 import justpy as jp
 import webapp_framework as wf
-import ui_styles as sty
+from webapp_framework import dpop
 import tailwind_tags as tw
-import pprint
+from .chart_ui_cfg import CPT, addict_walker, get_baseCfgAttrMeta, update_chartCfg, FalseDict, update_cfgattrmeta
+from . import ui_styles as sty
+# import actions
 import importlib
 import sys
+import traceback
 # importlib.reload(sys.modules['chartjs_customizer.chart_ui_cfg'])
 
-#from .session_data import session_data
+# from .session_data import session_data
 
 
 sample_label = ["l1", "l2", "l3", "l4", "l5"]
@@ -34,6 +37,7 @@ def launcher(request):
     wp.head_html = """<script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.js" > </script >\n    <link href = "https://unpkg.com/tailwindcss/dist/tailwind.min.css" rel = "stylesheet" >"""
 
     tlc = jp.Div(a=wp, classes=tw.tstr(*sty.tlc))
+
     refBoard = Dict()
     # =================== db for chart label input ===================
     labelsarea_ = wf.register(refBoard, wf.fc.textarea_("label", placeholder=pprint.pformat(sample_label),
@@ -70,6 +74,12 @@ def launcher(request):
     update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
     cjs_cfg.clear_changed_history()  # don't care much for the change right now
 
+    # def uicattrwalker(cfggroup_iter):
+    #     for kpath, attrmeta in cfggroup_iter:
+    #         yield kpath, attrmeta
+    #         if attrmeta.vtype == FalseDict:
+    #             yield from addict_walker(attrmeta.vrange)
+
     def cfggroup_iter():
         """
             iterator over attrmeta belonging to cfggroup
@@ -79,45 +89,52 @@ def launcher(request):
                 return True
             return False
         yield from filter(lambda _: is_in_group(_[0], _[1]), addict_walker(cfgAttrMeta))
+    # uic_iter = wf.uic_iter("Initial config", cfggroup_iter(),
+    # refBoard_)
     uic_iter = wf.uic_iter("Initial config", cfggroup_iter(),
                            refBoard_)
     cfgpanel_ = wf.dc.StackG_("cfgpanel", cgens=uic_iter,
                               pcp=sty.cfgpanels.cfgpanel)
     heading_ = wf.heading__gen("Configure Chart: Initial Config")
 
-    def on_submit_click(dbref, msg):
-        print(refBoard_)
-        wf.refresh(refBoard_)
-        print(refBoard_)
-        #session_data[request.session_id] = chartcfg
-        print(cjs_cfg)
-        print(dget(cjs_cfg, "/type"))
-        #dpop(cjs_cfg, "/options/parsing")
-        #print("post delte ", cjs_cfg)
-        for kpath, attrmeta in cfggroup_iter():
-            print(kpath, attrmeta)
-            print("val = ", refBoard_[kpath].val)
-            #print("set val ", kpath, " ", dget(refBoard_, kpath))
-            try:
-                print(dget(cjs_cfg, "/type"))
-                print(dget(cjs_cfg, kpath))
-                if kpath == "/type":
-                    cjs_cfg.pop('type', None)
-                else:
-                    optdict = dget(cjs_cfg, "/options")
-                    print("optdict = ", optdict)
-                    optdict.pop("parsing", None)
-                print("a")
-                dnew(cjs_cfg, kpath, refBoard_[kpath].val)
-                print("b", cjs_cfg)
-            except Exception as e:
-                print(e)
-                raise ValueError
+    # ========================= end ui stuff =========================
 
-        print("changed history ", cjs_cfg)
-        for _ in cjs_cfg.get_changed_history():
-            print(_)
-        pass
+    def update_ui():
+        print(refBoard_)
+        for kpath in cfgAttrMeta.get_changed_history():
+            attrmeta = dget(cfgAttrMeta, kpath)
+            dbref = refBoard_[kpath]._go.target
+            if attrmeta.active and 'hidden' in dbref.classes:
+                dbref.remove_class("hidden")
+                print(kpath, " ", dbref.classes)
+            elif not attrmeta.active and not 'hidden' in dbref.classes:
+                dbref.set_class("hidden")
+
+        # ========================= action stuff =========================
+        # extend_enum(wf.ModelUpdaterTag, 'UPDATE_CFGATTRMETA',
+        #             actions.UPDATE_CFGATTRMETA)
+        # extend_enum(wf.ModelUpdaterTag, 'UPDATE_CHARTCFG',
+        #             actions.GEN_EDCFG_FILE)
+        # extend_enum(wf.FrontendReactActionTag, 'UPDATE_UI',
+        #             actions.GEN_EDCFG_FILE)
+
+    def on_submit_click(dbref, msg):
+        wf.refresh(refBoard_)
+        for kpath, attrmeta in cfggroup_iter():
+            if attrmeta.active:
+                if dget(cjs_cfg, kpath) != refBoard_[kpath].val:
+                    print(f"update chartcfg {kpath}")
+                    wf.dupdate(cjs_cfg, kpath, refBoard_[kpath].val)
+            # cjs_cfg/kpath = refBoard_[kpath].val
+
+        # update  cfgattrmeta for cjs_cfg changes
+        try:
+            update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
+            update_ui()
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+            raise e
     submit_ = wf.dur.divbutton_(
         "Submit",  "Submit", "Build Chart", on_submit_click)
 
@@ -125,8 +142,31 @@ def launcher(request):
         heading_, cfgpanel_, submit_], pcp=sty.infocard)
     ic = ic_(tlc, "")
     # ================================================================
+
+    # ==================== frontend react actions ====================
+    def update_ui_component():
+        """
+        update ui on ui state change;
+        eventually this should be called update_ui only
+        """
+        wf.refresh(refBoard_)
+        for kpath, attrmeta in cfggroup_iter():
+            if attrmeta.active:
+                if dget(cjs_cfg, kpath) != refBoard_[kpath].val:
+                    print(f"update chartcfg {kpath}")
+                    wf.dupdate(cjs_cfg, kpath, refBoard_[kpath].val)
+
+        update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
+        for kpath in cfgAttrMeta.get_changed_history():
+            attrmeta = dget(cfgAttrMeta, kpath)
+            dbref = refBoard_[kpath]._go.target
+            if attrmeta.active and 'hidden' in dbref.classes:
+                dbref.remove_class("hidden")
+                print(kpath, " ", dbref.classes)
+            elif not attrmeta.active and not 'hidden' in dbref.classes:
+                dbref.set_class("hidden")
+
+    wp.update_ui_component = update_ui_component
+
+    # ============================== end =============================
     return wp
-
-
-app = jp.app
-jp.justpy(launcher, start_server=False)

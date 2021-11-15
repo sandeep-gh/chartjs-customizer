@@ -9,6 +9,9 @@ from chartjs_customizer import dashboard_step_by_step as dashboard
 
 from chartjs_customizer import getChartdata_sbs_wp as getChartdata_wp
 importlib.reload(getChartdata_wp)
+importlib.reload(wf)
+
+
 wp = getChartdata_wp.launcher(None)
 
 importlib.reload(dashboard)
@@ -17,6 +20,7 @@ dashboard.launcher(None)
 cjs_cfg = Dict(track_changes=True)
 ui_cfg = Dict(track_changes=True)
 cfgAttrMeta = get_baseCfgAttrMeta()
+attrupdate(cfgAttrMeta, "/type",  True)
 update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
 # ui will change cjs_cfg here: hidden will become unhidden
 cjs_cfg.clear_changed_history()

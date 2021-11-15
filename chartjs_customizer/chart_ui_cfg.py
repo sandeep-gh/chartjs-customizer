@@ -8,6 +8,8 @@ from justpy_chartjs.tags.style_values import Axis
 from aenum import Enum, auto
 from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
 from dpath.exceptions import PathNotFound
+import webapp_framework as wf
+import traceback
 
 
 def addict_walker(adict, ppath=""):
@@ -77,9 +79,17 @@ def get_baseCfgAttrMeta():
         4, int, [1, 9], CPT.perf, True)
     _base.options.devicePixelRatio = AttrMeta(
         1, int, [1, 5], CPT.advanced, True)
-    _base.options.parsing = AttrMeta(False, FalseDict,
-                                     {'xAxisKey': {}, 'yAxisKey': {}
-                                      }, CPT.initial, True)
+    _base.options.parsing.value = AttrMeta(False, FalseDict,
+                                           {'xAxisKey': AttrMeta('x', str, str, CPT.initial, False),
+                                            'yAxisKey': AttrMeta('y', str, str, CPT.initial, False),
+                                            'key': AttrMeta('id', str, str, CPT.initial, False)
+                                            }, CPT.initial, True)
+
+    _base.options.parsing.xAxisKey = AttrMeta(
+        'x', str, str, CPT.initial, False)
+    _base.options.parsing.yAxisKey = AttrMeta(
+        'y', str, str, CPT.initial, False)
+    _base.options.parsing.id = AttrMeta('id', str, str, CPT.initial, False)
 
     #_base.options.plugins = Dict()
     #_base.options.plugins.legend = Dict()
@@ -121,18 +131,15 @@ def eval_attrmetadefault(key, cam):
             return cam.default
 
         case "<aenum 'FalseDict'>":
-            print("FalseDict class")
             return cam.default
 
         case "<aenum 'Position'>" | "<aenum 'PlotType'>":
             return cam.default
 
         case "<aenum 'Color'>":
-            print("position class")
             return None  # TODO: will deal with later
 
         case _:
-            print("no match ", cam.vtype)
             raise ValueError
 
 # ===================== end eval_attrmetadefault =====================
@@ -152,19 +159,14 @@ def update_chartCfg(cfgattrmeta, cjs_cfg, ui_cfg):
     # remove everything thats changed and put it
     # back in only the active ones: this enables deletion
     for kpath in cfgattrmeta.get_changed_history():
-        print("removing ", kpath)
         try:
             dpop(cjs_cfg, kpath, None)
-        except PathNotFound:
-            pass
+        except PathNotFound as e:
+            pass  # skip if path is not in chartcfg
 
-    def is_active(kpath):
+    for kpath in filter(lambda kpath: dget(cfgattrmeta, kpath).active,
+                        cfgattrmeta.get_changed_history()):
         attrmeta = dget(cfgattrmeta, kpath)
-        return attrmeta.active
-    for kpath in filter(is_active, cfgattrmeta.get_changed_history()):
-        attrmeta = dget(cfgattrmeta, kpath)
-        print(kpath)
-        # print(attrmeta)
         evalue = eval_attrmetadefault(kpath, attrmeta)
         dnew(cjs_cfg, kpath, evalue)
     cfgattrmeta.clear_changed_history()
@@ -174,47 +176,36 @@ def update_chartCfg(cfgattrmeta, cjs_cfg, ui_cfg):
 
 # ============================= func def =============================
 
+def attrupdate(addict, kpath, active):
+    attrmeta = dget(addict, kpath)
+    attrmeta = attrmeta._replace(active=active)
+    wf.dupdate(addict, kpath, attrmeta)
 
-def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta):
+
+def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
     """
     add/delete attrMeta in cfgMeta based on new attr settings
     """
+    print("update_cfgattrmeta_kpath: for kpath = ", kpath, " val = ", val)
     match(kpath, val):
         case("/type", None):
-            _ = cfgattrmeta.options.scales.xAxis.grid
-            _.pop("display", None)
-            _.display = AttrMeta(
-                False, bool, bool, CPT.simple, False)
-
+            attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", False)
         case("/type", PlotType.Line):
-            _ = cfgattrmeta.options.scales.xAxis.grid
-            _.pop("display", None)
-            _.display = AttrMeta(
-                False, bool, bool, CPT.simple, True)
-
+            attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", True)
         case("/options/scales/xAxis/grid/display", True):
             _ = cfgMeta.options.scales.xAxis.grid
-            _.pop('color', None)
-            _.pop('borderColor', None)
-            _.pop('tickColor', None)
-            _.pop('circular', None)
-            _.color = AttrMeta("", Color, Color, CPT.simple, True)
-            _.borderColor = AttrMeta(
-                "", Color, Color, CPT.nitpick, False)
-            _.tickColor = AttrMeta(
-                "", Color, Color, CPT.simplemore, False)
-            _.circular = AttrMeta(
-                None, None, None, CPT.TBD, False)  # from for radar chart
+            for _ in ['color', 'borderColor', 'tickColor', 'circular']:
+                attrupdate(
+                    cfgattrmeta, f"/options/scales/xAxis/grid/{_}", True)
 
-        case("/options/parsing", True):
-            _ = cfgMeta.options.parsing
-            _.pop('xAxisKey', None)
-            _.pop('yAxisKey', None)
-            _.xAxisKey = AttrMeta(
-                'x', str,  str, CPT.config, True)
-            _.yAxisKey = AttrMeta(
-                'y', str,  str, CPT.config, True)
-            _
+        case("/options/parsing/value", True):
+            print("in /options/parsing/value")
+            match dget(chartcfg, "/type"):
+                case PlotType.Line | 'line':
+                    attrupdate(cfgattrmeta, f"/options/parsing/xAxisKey", True)
+                    attrupdate(cfgattrmeta, f"/options/parsing/yAxisKey", True)
+                case PlotType.Bubble:
+                    attrupdate(cfgattrmeta, f"/options/parsing/id", True)
 
 # ====================== end update_cfgattrmeta ======================
 
@@ -222,6 +213,10 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta):
 # ============================= func def ============================
 def update_cfgattrmeta(chartcfg, cfgAttrMeta):
     for kpath in chartcfg.get_changed_history():
-        update_cfgattrmeta_kpath(kpath, dget(chartcfg, kpath), cfgAttrMeta)
+        update_cfgattrmeta_kpath(kpath, dget(
+            chartcfg, kpath), cfgAttrMeta, chartcfg)
+
+    for kpath in cfgAttrMeta.get_changed_history():
+        print(f"changed cfgAttrMeta: {kpath}")
     chartcfg.clear_changed_history()
 # ================== end update_cfgattrmeta_chartcfg =================
