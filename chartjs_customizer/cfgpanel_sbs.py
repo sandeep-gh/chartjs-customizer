@@ -10,26 +10,24 @@ import webapp_framework as wf
 from justpy_chartjs.tags import cfg_template as ct
 from . import ui_styles
 from tailwind_tags import bg, pink, jc, db, jc, mr
-from .chart_ui_cfg import addict_walk
+from .chart_ui_cfg import addict_walker
 top_level_group = ["options"]
 tier1_level_group = {"options": ["elements"],
                      "data": []}
 
 
-def uic_iter(label, attrmetaIter, refBoard):
-    """
-    label: group or subgroup label
-    """
-    print("build ui for ", label)
-    for attrmeta in attrmetaIter:
-        print(attrmeta)
-    print("done ")
-    return []  # don't draw anything yet
+# def uic_iter(label, attrmetaIter, refBoard):
+#     """
+#     label: group or subgroup label
+#     """
+#     for attrmeta in attrmetaIter:
+#         print(attrmeta)
+#     return []  # don't draw anything yet
 
 
-def cfggroup_panel_(grouptag,  chartcfg, uicfg):
-    refBoard = Dict()
+def cfggroup_panel_(grouptag,  chartcfg, uicfg, refBoard_):
     # =========================== begin ==========================
+    dbrefBoard = Dict()
 
     def cfggroup_iter():
         """
@@ -42,7 +40,7 @@ def cfggroup_panel_(grouptag,  chartcfg, uicfg):
                     return True
             return False
         #
-        yield from filter(lambda _: is_in_group(_[0], _[1]), addict_walk(uicfg))
+        yield from filter(lambda _: is_in_group(_[0], _[1]), addict_walker(uicfg))
     # =========================== end ===========================
 
     def subgroup_iter(tlkey, tier1key=None):
@@ -74,25 +72,27 @@ def cfggroup_panel_(grouptag,  chartcfg, uicfg):
         yield from filter(lambda _: is_in_subgroup(_[0]), cfggroup_iter())
     # ============================ end ===========================
     top_level_ui = {"options":
-                    wf.register(refBoard,
+                    wf.register(dbrefBoard,
                                 wf.fc.StackV_("options",
-                                              uic_iter("options",
-                                                       subgroup_iter(
-                                                           "options", None),
-                                                       refBoard
-                                                       ),
+                                              wf.uic_iter("options",
+                                                          subgroup_iter(
+                                                              "options", None),
+                                                          refBoard_
+                                                          ),
                                               pcp=ui_styles.cfgpanels.options
                                               )
                                 )
                     }
     tier1_level_ui = {"options":
-                      {"elements": dc.StackV_("options/elements",
-                                              uic_iter("options/elements",
-                                                       subgroup_iter(
-                                                           "options", "elements"),
-                                                       refBoard),
-                                              pcp=ui_styles.cfgpanels.options_child
-                                              )
+                      {"elements": wf.register(dbrefBoard,
+                                               wf.fc.StackV_("options/elements",
+                                                             wf.uic_iter("options/elements",
+                                                                         subgroup_iter(
+                                                                             "options", "elements"),
+                                                                         refBoard_),
+                                                             pcp=ui_styles.cfgpanels.options_child
+                                                             )
+                                               )
                        }
                       }
 
@@ -105,6 +105,8 @@ def cfggroup_panel_(grouptag,  chartcfg, uicfg):
                 yield vv
 
     def on_submit_click(dbref, msg):
+        rts = TaskStack()
+        rts.addTask(FrontendReactActionTag.UpdateChart, None)
         pass
     heading_ = heading__gen(
         f"Configure Chart: {grouptag.value} chart config options")

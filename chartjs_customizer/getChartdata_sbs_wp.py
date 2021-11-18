@@ -109,7 +109,7 @@ def launcher(request):
                 print(kpath, " ", dbref.classes)
             elif not attrmeta.active and not 'hidden' in dbref.classes:
                 dbref.set_class("hidden")
-
+        cfgAttrMeta.clear_changed_history()
         # ========================= action stuff =========================
         # extend_enum(wf.ModelUpdaterTag, 'UPDATE_CFGATTRMETA',
         #             actions.UPDATE_CFGATTRMETA)
@@ -119,22 +119,7 @@ def launcher(request):
         #             actions.GEN_EDCFG_FILE)
 
     def on_submit_click(dbref, msg):
-        wf.refresh(refBoard_)
-        for kpath, attrmeta in cfggroup_iter():
-            if attrmeta.active:
-                if dget(cjs_cfg, kpath) != refBoard_[kpath].val:
-                    print(f"update chartcfg {kpath}")
-                    wf.dupdate(cjs_cfg, kpath, refBoard_[kpath].val)
-            # cjs_cfg/kpath = refBoard_[kpath].val
-
-        # update  cfgattrmeta for cjs_cfg changes
-        try:
-            update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
-            update_ui()
-        except Exception as e:
-            print(e)
-            traceback.print_exc()
-            raise e
+        print("go  on ...build the chart")
     submit_ = wf.dur.divbutton_(
         "Submit",  "Submit", "Build Chart", on_submit_click)
 
@@ -165,7 +150,7 @@ def launcher(request):
                 print(kpath, " ", dbref.classes)
             elif not attrmeta.active and not 'hidden' in dbref.classes:
                 dbref.set_class("hidden")
-
+        cfgAttrMeta.clear_changed_history()
     wp.update_ui_component = update_ui_component
 
     # ============================== end =============================

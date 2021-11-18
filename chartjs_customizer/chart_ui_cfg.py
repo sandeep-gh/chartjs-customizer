@@ -10,6 +10,7 @@ from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
 from dpath.exceptions import PathNotFound
 import webapp_framework as wf
 import traceback
+from versa_engine.common.plot_utils import pick_colors_from_anchors
 
 
 def addict_walker(adict, ppath=""):
@@ -113,7 +114,7 @@ def get_baseCfgAttrMeta():
     _xAxis.grid.tickColor = AttrMeta(
         "", Color, Color, CPT.simplemore, False)
     _xAxis.grid.circular = AttrMeta(
-        None, None, None, CPT.TBD, False)  # from for radar chart
+        None, None, None, CPT.simple, False)  # from for radar chart
 
     return _base
 
@@ -121,7 +122,7 @@ def get_baseCfgAttrMeta():
 
 
 # ============================= fund def =============================
-def eval_attrmetadefault(key, cam):
+def eval_attrmetadefault(cam):
     '''
     cam: CfgattrMeta
     '''
@@ -134,7 +135,7 @@ def eval_attrmetadefault(key, cam):
             return cam.default
 
         case "<aenum 'Position'>" | "<aenum 'PlotType'>":
-            return cam.default
+            return cam.default.value
 
         case "<aenum 'Color'>":
             return None  # TODO: will deal with later
@@ -145,6 +146,26 @@ def eval_attrmetadefault(key, cam):
 # ===================== end eval_attrmetadefault =====================
 
 # ============================= func def =============================
+
+
+def build_plt_cfg(chart_cfg):
+    """
+    translate chart_cfg 
+    """
+    def to_chartcfg_path(kpath, val):
+        match kpath, val:
+            case '/options/parsing/value', False:
+                return '/options/parsing', False
+            case '/options/parsing/value', True:
+                return None  # let xkeys and ykeys take care of it
+            case _:
+                return kpath, val
+
+    plt_cfg = Dict()
+    for kpath, val in map(lambda _: to_chartcfg_path(_[0], _[1]), addict_walker(chart_cfg)):
+        dnew(plt_cfg, kpath, val)
+
+    return plt_cfg
 
 
 def update_chartCfg(cfgattrmeta, cjs_cfg, ui_cfg):
@@ -159,6 +180,7 @@ def update_chartCfg(cfgattrmeta, cjs_cfg, ui_cfg):
     # remove everything thats changed and put it
     # back in only the active ones: this enables deletion
     for kpath in cfgattrmeta.get_changed_history():
+
         try:
             dpop(cjs_cfg, kpath, None)
         except PathNotFound as e:
@@ -167,7 +189,7 @@ def update_chartCfg(cfgattrmeta, cjs_cfg, ui_cfg):
     for kpath in filter(lambda kpath: dget(cfgattrmeta, kpath).active,
                         cfgattrmeta.get_changed_history()):
         attrmeta = dget(cfgattrmeta, kpath)
-        evalue = eval_attrmetadefault(kpath, attrmeta)
+        evalue = eval_attrmetadefault(attrmeta)
         dnew(cjs_cfg, kpath, evalue)
     cfgattrmeta.clear_changed_history()
 
@@ -186,15 +208,15 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
     """
     add/delete attrMeta in cfgMeta based on new attr settings
     """
-    print("update_cfgattrmeta_kpath: for kpath = ", kpath, " val = ", val)
+    print(f"update_cfgattrmeta_kpath: for kpath = {kpath}", " val = ", val)
     match(kpath, val):
         case("/type", None):
             attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", False)
         case("/type", PlotType.Line):
             attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", True)
         case("/options/scales/xAxis/grid/display", True):
-            _ = cfgMeta.options.scales.xAxis.grid
-            for _ in ['color', 'borderColor', 'tickColor', 'circular']:
+            _ = cfgattrmeta.options.scales.xAxis.grid
+            for _ in ['color', 'borderColor', 'tickColor']:  # deal with circular later
                 attrupdate(
                     cfgattrmeta, f"/options/scales/xAxis/grid/{_}", True)
 
@@ -215,8 +237,48 @@ def update_cfgattrmeta(chartcfg, cfgAttrMeta):
     for kpath in chartcfg.get_changed_history():
         update_cfgattrmeta_kpath(kpath, dget(
             chartcfg, kpath), cfgAttrMeta, chartcfg)
-
-    for kpath in cfgAttrMeta.get_changed_history():
-        print(f"changed cfgAttrMeta: {kpath}")
     chartcfg.clear_changed_history()
 # ================== end update_cfgattrmeta_chartcfg =================
+
+
+# ========================== add data items ==========================
+colorSchemes = {"default": ["#7f3b08", "#f7f7f7", "#2d004b"]
+                }
+
+colorset = default_colorset = pick_colors_from_anchors(
+    colorSchemes["default"], 8)
+
+
+labels = ["ds1", "ds2", "ds3", "ds4", "ds5"]
+datavals = [[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}],
+            [{'x': 1, 'y': 7}, {'x': 5, 'y': 2}],
+            [{'x': 1, 'y': 0}, {'x': 5, 'y': 8}],
+            [{'x': 1, 'y': 13}, {'x': 5, 'y': 2}],
+            [{'x': 1, 'y': 2}, {'x': 5, 'y': 6}],
+            [{'x': 1, 'y': 9}, {'x': 5, 'y': 7}],
+            ]
+
+
+def datagen(labels, datavals):
+    for idx, label, dataval in zip(range(len(labels)), labels, datavals):
+        dataitem = Dict()
+        dataitem.label = label
+        dataitem.data = dataval
+        dataitem.borderColor = colorset[idx]
+        dataitem.backgroundColor = colorset[idx]
+        # dataitem.stack = None #treeshake it; defines a group
+        # dataitem.borderWidth = 2 #decor parameter
+        # dataitem.borderRadius = 5 #decor parameter
+        # dataitem.borderDash = [3, 3] #decor param
+        # dataitem.yAxisID = 'y' #config param
+        # dataitem.fill = False #decor param
+        # if pltctx.plttype in ['line']:
+        #     dataitem.cubicInterpolationModel = 'cubic' #decor param
+        #     dataitem.tension = 0.5
+        yield dataitem
+
+
+def add_dataset(chartcfg):
+    chartcfg.data.datasets = [_ for _ in datagen(labels, datavals)]
+
+# =============================== done ===============================

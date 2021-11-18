@@ -1,24 +1,31 @@
 import sys
 import importlib
 from addict import Dict
-from chartjs_customizer.chart_ui_cfg import *
+from chartjs_customizer import chart_ui_cfg as ccfg
 
 from chartjs_customizer.dashboard_step_by_step import launcher
 from chartjs_customizer import dashboard_step_by_step as dashboard
-
+from dpath.util import get as dget, set as dset,  new as dnew
 
 from chartjs_customizer import getChartdata_sbs_wp as getChartdata_wp
+importlib.reload(ccfg)
 importlib.reload(getChartdata_wp)
 importlib.reload(wf)
+cfgAttrMeta = ccfg.get_baseCfgAttrMeta()
+cjs_cfg = Dict(track_changes=True)
+ui_cfg = Dict(track_changes=True)
+ccfg.update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
+dset(cjs_cfg, "/type", "line")
+ccfg.add_dataset(cjs_cfg)
 
 
+plt_cfg = ccfg.build_plt_cfg(cjs_cfg)
 wp = getChartdata_wp.launcher(None)
 
 importlib.reload(dashboard)
 dashboard.launcher(None)
 
-cjs_cfg = Dict(track_changes=True)
-ui_cfg = Dict(track_changes=True)
+
 cfgAttrMeta = get_baseCfgAttrMeta()
 attrupdate(cfgAttrMeta, "/type",  True)
 update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
