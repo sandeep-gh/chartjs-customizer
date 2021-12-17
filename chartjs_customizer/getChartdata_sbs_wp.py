@@ -33,28 +33,34 @@ def no_action(dbref, msg):
 
 def launcher(request):
     wp = jp.QuasarPage()
-    wp.tailwind = True
-    wp.head_html = """<script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.js" > </script >\n    <link href = "https://unpkg.com/tailwindcss/dist/tailwind.min.css" rel = "stylesheet" >"""
+    wp.tailwind = False
+    wp.head_html = """<script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.js" > </script >\n    <script src="https://cdn.tailwindcss.com/"></script>"""
 
     tlc = jp.Div(a=wp, classes=tw.tstr(*sty.tlc))
 
     refBoard = Dict()
     # =================== db for chart label input ===================
-    labelsarea_ = wf.register(refBoard, wf.fc.textarea_("label", placeholder=pprint.pformat(sample_label),
+    labelsarea_ = wf.register(refBoard, wf.fc.Textarea_("label", placeholder=pprint.pformat(sample_label),
                                                         readonly=False))
-    span_ = wf.dur.span_("label", "Enter chart labels")
-    labelpanel_ = wf.dc.StackV_(
-        "labelpanel", cgens=[span_, labelsarea_], pcp=sty.panel)
+    #span_ = wf.dur.span_("label", "Enter chart labels")
+    # labelpanel_ = wf.dc.StackV_(
+    # "labelpanel", cgens=[span_, labelsarea_], pcp=sty.panel)
+
+    labelpanel_ = wf.hc.Subsection_("enterChartLabel",
+                                    "Enter chart labels", labelsarea_)
 
     # ======================= db for chart data ======================
-    textarea_ = wf.register(refBoard, wf.fc.textarea_("data", placeholder=pprint.pformat(sample_data),
-                                                      readonly=False))
-    span_ = wf.dur.span_("label", "Enter chart data")
-    datapanel_ = wf.dc.StackV_(
-        "datapanel", cgens=[span_, textarea_], pcp=sty.panel)
-    heading_ = wf.heading__gen(f"Chart Data")
+    # textarea_ = wf.register(refBoard, wf.fc.Textarea_("data", placeholder=pprint.pformat(sample_data),
+    #                                                   readonly=False))
+    # span_ = wf.dur.span_("label", "Enter chart data")
+    # datapanel_ = wf.dc.StackV_(
+    #     "datapanel", cgens=[span_, textarea_], pcp=sty.panel)
+    # heading_ = wf.heading__gen(f"Chart Data")
+    # ic_ = wf.dc.Infocard_(f'icChartData',  cgens=[
+    #     heading_, labelpanel_, datapanel_])
+
     ic_ = wf.dc.Infocard_(f'icChartData',  cgens=[
-        heading_, labelpanel_, datapanel_])
+        labelpanel_])
     ic = ic_(tlc, "")
 
     refBoard_ = refBoard.initialcfg = Dict()

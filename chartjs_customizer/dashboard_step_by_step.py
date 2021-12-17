@@ -1,3 +1,12 @@
+import importlib
+import sys
+import traceback
+from .cfgpanel_sbs import cfggroup_panel_
+from .chart_ui_cfg import CPT, get_baseCfgAttrMeta, update_chartCfg, update_cfgattrmeta, add_dataset, build_plt_cfg
+from aenum import extend_enum, auto
+import json
+import jsbeautifier
+from justpy_chartjs import chartjscomponents as cj
 import copy
 import re
 import logging
@@ -5,17 +14,8 @@ import justpy as jp
 from addict import Dict
 from dpath.util import get as dget, set as dset,  new as dnew
 import webapp_framework as wf  # dc, dbr, Dockbar, FrontendReactActionTag
-from justpy_chartjs import chartjscomponents as cj
-from . import ui_styles
-import jsbeautifier
-import json
-from aenum import extend_enum, auto
-from .chart_ui_cfg import CPT, get_baseCfgAttrMeta, update_chartCfg, update_cfgattrmeta, add_dataset, build_plt_cfg
+from . import fancysty as sty
 
-from .cfgpanel_sbs import cfggroup_panel_
-import traceback
-import sys
-import importlib
 importlib.reload(sys.modules['chartjs_customizer.chart_ui_cfg'])
 importlib.reload(sys.modules['chartjs_customizer.cfgpanel_sbs'])
 
@@ -32,6 +32,7 @@ def launcher(request):
     logger = logging.getLogger('webapp')
     logger.setLevel(logging.INFO)
     wp = jp.QuasarPage()
+    wp.tailwind = True
     wp.head_html = """<script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.js" > </script >\n    <link href = "https://unpkg.com/tailwindcss/dist/tailwind.min.css" rel = "stylesheet" >"""
 
     wp.model = Dict(track_changes=True)
@@ -44,10 +45,10 @@ def launcher(request):
     update_chartCfg(cfgAttrMeta, cjs_cfg, ui_cfg)
     add_dataset(cjs_cfg)
     print("post data addition = ", cjs_cfg)
-    cjs_cfg.clear_changed_history()  # don't care much for the change right now
+    cjs_cfg.clear_changed_history()
     dset(cjs_cfg, "/type", "line")
     print("initial chartcfg ", cjs_cfg)
-    update_cfgattrmeta(cjs_cfg, cfgAttrMeta)  # grid should be active now
+    update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
 
     # ============================= done =============================
 
@@ -56,13 +57,13 @@ def launcher(request):
 
     dockbar_ = wf.Dockbar.build_dockbar_('dockbar')
     tlc_ = wf.dc.StackG_("analysisPanel", 4, 6,  cgens=[cfgpanel_all_],
-                         pcp=ui_styles.analysisPanel)
+                         pcp=sty.analysisPanel)
 
     cjs_plt_cfg = build_plt_cfg(cjs_cfg)
     pltcanvas_ = cj.ChartJS_("pltcanvas", pcp=[], options=cjs_plt_cfg)
     noticeboard_ = wf.dbr.Noticebord_("noticeboard")
     rootde_ = wf.dc.StackV_(
-        "rootde",  cgens=[dockbar_, pltcanvas_, tlc_, noticeboard_], pcp=ui_styles.rootde)
+        "rootde",  cgens=[dockbar_, pltcanvas_, tlc_, noticeboard_], pcp=sty.rootde)
 
     dbref_rootde = rootde_(wp, "")
     dbref_dockbar = dbref_rootde.getItem('dockbar')

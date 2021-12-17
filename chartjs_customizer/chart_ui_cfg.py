@@ -110,7 +110,7 @@ def get_baseCfgAttrMeta():
     _xAxis.grid.color = AttrMeta(
         "", Color, Color, CPT.simple, False)
     _xAxis.grid.borderColor = AttrMeta(
-        "", Color, Color, CPT.nitpick, False)
+        "", Color, Color, CPT.simplemore, False)
     _xAxis.grid.tickColor = AttrMeta(
         "", Color, Color, CPT.simplemore, False)
     _xAxis.grid.circular = AttrMeta(
@@ -198,21 +198,22 @@ def update_chartCfg(cfgattrmeta, cjs_cfg, ui_cfg):
 
 # ============================= func def =============================
 
-def attrupdate(addict, kpath, active):
-    attrmeta = dget(addict, kpath)
+def attrupdate(cfgattrmeta, kpath, active):
+    attrmeta = dget(cfgattrmeta, kpath)
     attrmeta = attrmeta._replace(active=active)
-    wf.dupdate(addict, kpath, attrmeta)
+    wf.dupdate(cfgattrmeta, kpath, attrmeta)
 
 
 def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
     """
-    add/delete attrMeta in cfgMeta based on new attr settings
+     add/delete attrMeta in cfgMeta based on new attr settings
     """
     print(f"update_cfgattrmeta_kpath: for kpath = {kpath}", " val = ", val)
     match(kpath, val):
         case("/type", None):
             attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", False)
-        case("/type", PlotType.Line):
+        case("/type", PlotType.Line | 'line'):  # value in justpy is never a python objet
+            # TODO: also disable any
             attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", True)
         case("/options/scales/xAxis/grid/display", True):
             _ = cfgattrmeta.options.scales.xAxis.grid
@@ -235,9 +236,10 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
 # ============================= func def ============================
 def update_cfgattrmeta(chartcfg, cfgAttrMeta):
     for kpath in chartcfg.get_changed_history():
+        print("update_cfgattrmeta ", kpath)
         update_cfgattrmeta_kpath(kpath, dget(
             chartcfg, kpath), cfgAttrMeta, chartcfg)
-    chartcfg.clear_changed_history()
+
 # ================== end update_cfgattrmeta_chartcfg =================
 
 

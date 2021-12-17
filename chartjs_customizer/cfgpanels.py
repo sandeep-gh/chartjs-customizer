@@ -11,7 +11,7 @@ from webapp_framework import dur, dc, dbr, heading__gen
 from webapp_framework import MRVWLR, TaskStack, FrontendReactActionTag
 from justpy_chartjs.tags import cfg_template as ct
 from chartcfg_builder import cfg
-import ui_styles
+from . import fancysty as sty
 from tailwind_tags import bg, pink, jc, db, jc, mr
 
 
@@ -134,11 +134,11 @@ def build_cfgpanel_(cfgtype, chartcfg):
                           )
 
     top_level_ui = {"options": dc.StackV_("options", ui_iter_for_cfgcategory(
-        "options", None), pcp=ui_styles.cfgpanels.options), "data": dc.StackV_("data")}
+        "options", None), pcp=sty.cfgpanels.options), "data": dc.StackV_("data")}
     tier1_level_ui = {"options":
-                      {"elements": dc.StackV_("options/elements", ui_iter_for_cfgcategory("options", "elements"), pcp=ui_styles.cfgpanels.options_child),
-                          "scales/xAxis": dc.StackV_("options/scales/xAxis", ui_iter_for_cfgcategory("options", "scales/xAxis"), pcp=ui_styles.cfgpanels.options_child),
-                          "scales/yAxis": dc.StackV_("options/scales/yAxis", ui_iter_for_cfgcategory("options", "scales/yAxis"), pcp=ui_styles.cfgpanels.options_child)
+                      {"elements": dc.StackV_("options/elements", ui_iter_for_cfgcategory("options", "elements"), pcp=sty.cfgpanels.options_child),
+                          "scales/xAxis": dc.StackV_("options/scales/xAxis", ui_iter_for_cfgcategory("options", "scales/xAxis"), pcp=sty.cfgpanels.options_child),
+                          "scales/yAxis": dc.StackV_("options/scales/yAxis", ui_iter_for_cfgcategory("options", "scales/yAxis"), pcp=sty.cfgpanels.options_child)
                        },
                       "data": {}
                       }
@@ -192,11 +192,11 @@ def build_cfgpanel_(cfgtype, chartcfg):
 
     heading_ = heading__gen(f"Configure Chart: {cfgtype} config")
     cfgblks_ = dc.StackG_("cfgpanel", cgens=cfgblks_iter(),
-                          pcp=ui_styles.cfgpanels.cfgpanel)
+                          pcp=sty.cfgpanels.cfgpanel)
     submit_ = dur.divbutton_(
         f"{cfgtype}Submit",  f"{cfgtype}_submit", "submit", on_submit_click)
 
     ic_ = dc.Infocard_(f'ic{cfgtype}',  cgens=[
-                       heading_, cfgblks_, submit_], pcp=ui_styles.cfgpanels.infocard)
+                       heading_, cfgblks_, submit_], pcp=sty.cfgpanels.infocard)
 
     return ic_

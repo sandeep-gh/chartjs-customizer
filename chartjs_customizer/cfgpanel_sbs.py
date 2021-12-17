@@ -54,7 +54,7 @@ def cfggroup_panel_(grouptag,  chartcfg, uicfg, refBoard_):
 
         def is_in_subgroup(kpath):
             """
-            check if kpath belongs to tlkey/tier1key
+            check if kpath belongs to group defined by tlkey/tier1key
             """
             if tlkey in kpath:
                 res = len([True for _ in tier1keys if _ in kpath])
