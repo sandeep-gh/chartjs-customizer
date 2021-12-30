@@ -32,3 +32,18 @@ demjson3
 
 
 
+* Programming Guidelines
+** attrmeta.py
+all things about attrmeta.
+attrmeta contains metadata abouts config attributes
+** cfgattrmeta
+is a json/addict that over attrmeta in same path order as chartjs might expect it.
+** update_cfgattrmeta when uielem state changes on front end.
+update cfgattrmeta if  uielem state changes on front end.
+attrmeta_in_context((kpath, value), cfgattrmeta)  will return all attrmeta that are active
+in that ui_state
+** update cjs_cfg
+for all the newly active attrmeta -- add the corresponding kpath and default value to cjs_cfg
+
+
+

@@ -13,6 +13,6 @@ panel = [*border_style]
 _ = cfgpanels = Dict()
 
 _.cfgpanel = [col/span/6, row/span/1]
-_.options = [mr/x/4]
-_.options_child = [mr/x/4,
-                   *border_style]
+_.options = [space/x/4, space/y/4, ] 
+_.options_child = [space/x/4, space/y/4
+                   ] #, 

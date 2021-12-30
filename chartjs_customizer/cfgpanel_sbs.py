@@ -3,14 +3,15 @@ import json
 from dpath.util import get as dget
 from dpath.util import set as dset
 import jsbeautifier
-from addict import Dict
+from addict import Dict, walker as dictWalker
 from webapp_framework import dur, dc, dbr, heading__gen
 from webapp_framework import MRVWLR, TaskStack, FrontendReactActionTag
 import webapp_framework as wf
 from justpy_chartjs.tags import cfg_template as ct
 from . import snowsty as sty
 from tailwind_tags import bg, pink, jc, db, jc, mr
-from .chart_ui_cfg import addict_walker, is_visible
+from . import attrmeta
+
 #top_level_group = ["scales"]
 top_level_group = ["options"]
 tier1_level_group = {"options": ["elements"], "options": ["scales/xAxis"],
@@ -50,8 +51,8 @@ def cfggroup_panel_(grouptag,  chartcfg, cfgattrmeta, refBoard_):
             return False
 
         yield from filter(lambda _: is_in_group(_[0], _[1]),
-                          filter(lambda _: is_visible(_[1]),
-                                 addict_walker(cfgattrmeta)
+                          filter(lambda _: attrmeta.is_visible(_[1]),
+                                 dictWalker(cfgattrmeta)
                                  )
                           )
 
@@ -69,11 +70,9 @@ def cfggroup_panel_(grouptag,  chartcfg, cfgattrmeta, refBoard_):
             check if kpath belongs to group defined by tlkey/tier1key
             """
 
-            print(f"is_in_subgroup: {tlkey} {tier1keys} {kpath}")
             if tlkey in kpath:
                 res = len([True for _ in tier1keys if _ in kpath])
-                print(
-                    f"res:is_in_subgroup: {tlkey} {tier1keys} {kpath} : {res}")
+
                 if tier1key is None:
                     if res == 0:
                         return True
@@ -106,7 +105,7 @@ def cfggroup_panel_(grouptag,  chartcfg, cfgattrmeta, refBoard_):
         for kk in tier1_level_group[key]:
             kk_panel = wf.register(dbrefBoard,
                                    wf.hc.StackW_(f"{key}/{kk}",
-                                                 wf.uic_iter("{key}/{kk}",
+                                                 wf.uic_iter(f"{key}/{kk}",
                                                              subgroup_iter(
                                                                  f"{key}", f"{kk}"),
                                                              refBoard_),
