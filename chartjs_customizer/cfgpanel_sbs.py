@@ -138,10 +138,11 @@ def cfggroup_panel_(grouptag,  chartcfg, cfgattrmeta, refBoard_):
 
                 # yield vv
 
+    @MRVWLR
     def on_submit_click(dbref, msg):
         rts = TaskStack()
         rts.addTask(FrontendReactActionTag.UpdateChart, None)
-        pass
+        return msg.page, rts
     # heading_ = heading__gen(
     #     f"Configure Chart: {grouptag.value} chart config options")
     # cfgblks_ = dc.StackG_("cfgpanel", cgens=cfgblks_iter(),

@@ -5,6 +5,8 @@ from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
 from justpy_chartjs.tags.style_values import Align, Position
 from justpy_chartjs.tags.style_values import Axis
 import webapp_framework as wf
+import tailwind_tags as twt
+from tailwind_tags import color2hex as hexify
 
 
 class AttrMeta(NamedTuple):
@@ -76,12 +78,12 @@ def get_basecfg():
                                             'key': AttrMeta('id', str, str, CPT.initial, False, [('/options/parsing/', True)])
                                             }, CPT.initial, True, [('*', '*')])
 
-    _base.options.parsing.xAxisKey = AttrMeta(
-        'x', str, str, CPT.initial, False, [('options/parsing', 'True')])  # active only if /options/parsing is True
-    _base.options.parsing.yAxisKey = AttrMeta(
-        'y', str, str, CPT.initial, False, [('options/parsing', 'True')])
-    _base.options.parsing.id = AttrMeta('id', str, str, CPT.initial, False, [
-        ('options/parsing', 'True')])
+    # _base.options.parsing.xAxisKey = AttrMeta(
+    #     'x', str, str, CPT.initial, False, [('options/parsing', 'True')])  # active only if /options/parsing is True
+    # _base.options.parsing.yAxisKey = AttrMeta(
+    #     'y', str, str, CPT.initial, False, [('options/parsing', 'True')])
+    # _base.options.parsing.id = AttrMeta('id', str, str, CPT.initial, False, [
+    #     ('options/parsing', 'True')])
 
     # _base.options.plugins = Dict()
     # _base.options.plugins.legend = Dict()
@@ -101,11 +103,11 @@ def get_basecfg():
     _.tension = AttrMeta(0, float, [0, 1], CPT.advanced, True, [
         ('/type', 'line')])
     _.backgroundColor = AttrMeta(
-        "", Color, Color, CPT.simple, True, [('/type', 'line')])
+        twt.gray/1, Color, Color, CPT.simple, True, [('/type', 'line')])
     _.borderWidth = AttrMeta(
         2, int, [0, 5], CPT.simple, True, [('/type', 'line')])
     _.borderColor = AttrMeta(
-        "", Color, Color, CPT.simple,  True, [('/type', 'line')])
+        twt.gray/2, Color, Color, CPT.simple,  True, [('/type', 'line')])
     _.borderCapStyle = AttrMeta(
         "butt", None, None, CPT.TBD, False, [('/type', 'line')])
     _.borderDash = AttrMeta([], None, None, CPT.TBD,
@@ -128,11 +130,11 @@ def get_basecfg():
     _xAxis.grid.display = AttrMeta(
         False, bool, bool, CPT.simple, True, [('/type', 'line')])
     _xAxis.grid.color = AttrMeta(
-        "", Color, Color, CPT.simple, False, [('/options/scales/xAxis/grid/display', 'line')])
+        twt.gray/1, Color, Color, CPT.simple, False, [('/options/scales/xAxis/grid/display', 'line')])
     _xAxis.grid.borderColor = AttrMeta(
-        "", Color, Color, CPT.simplemore, False, [('/options/scales/xAxis/grid/display', 'line')])
+        twt.gray/2, Color, Color, CPT.simplemore, False, [('/options/scales/xAxis/grid/display', 'line')])
     _xAxis.grid.tickColor = AttrMeta(
-        "", Color, Color, CPT.simplemore, False, [('/options/scales/xAxis/grid/display', 'line')])
+        twt.gray/1, Color, Color, CPT.simplemore, False, [('/options/scales/xAxis/grid/display', 'line')])
     _xAxis.grid.circular = AttrMeta(
         None, None, None, CPT.simple, False, [('/options/scales/xAxis/grid/display', 'line')])  # from for radar chart
 
@@ -157,7 +159,8 @@ def get_defaultVal(attrmeta):  # TODO: ask SO if there is a better way to
             return cam.default.value
 
         case "<aenum 'Color'>":
-            return None  # TODO: will deal with later
+            print("default val for {attrmeta} ", hexify(cam.default))
+            return hexify(cam.default)  # TODO: will deal with later
 
         case _:
             print("unkown vtype :", cam)

@@ -19,6 +19,8 @@ from . import snowsty as sty
 from . import attrmeta
 from .chartcfg import update_chartCfg, update_cfgattrmeta, add_dataset, build_pltcfg
 
+extend_enum(wf.FrontendReactActionTag, 'UpdateChart', auto())
+
 
 def page_ready(self, msg):
     '''
@@ -75,7 +77,33 @@ def all_things_page(wp):
     dbref_noticeboard = dbref_rootde.getItem('noticeboard')
     dbref_chartcbox = dbref_rootde.getItem("pltcanvas")
 
-    extend_enum(wf.FrontendReactActionTag, 'UpdateChart', auto())
+    def update_ui():
+        """update ui on update to cjs_cfg
+        1. update cfgattrmeta based on context
+        2. update ui 'hidden' attribute based newly active cfgattrmeta
+        """
+        update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
+        for kpath in cfgAttrMeta.get_changed_history():
+            print(f"update_ui_component:cfgattrmeta: {kpath}")
+            kpath = kpath.lstrip()
+            attrmeta = dget(cfgAttrMeta, kpath)
+            dbref = dget(refBoard_, kpath)._go.target
+
+            if attrmeta.active and 'hidden' in dbref.classes:
+                dbref.remove_class("hidden")
+                #print(kpath, " ", dbref.classes)
+            elif not attrmeta.active and not 'hidden' in dbref.classes:
+                dbref.set_class("hidden")
+            # if new attrmeta elements have active;add them to cjs_cfg
+        update_chartCfg(cfgAttrMeta, cjs_cfg)
+        cfgAttrMeta.clear_changed_history()
+        cjs_cfg.clear_changed_history()
+        print("done update ui")
+
+    def refresh_chart():
+        cjs_plt_cfg = build_pltcfg(cjs_cfg)
+        print("update chart with : ", cjs_plt_cfg)
+        dbref_chartcbox.chartjs.new_chart(cjs_plt_cfg)
 
     def run_frontendReactAction(tag, arg):
         # logger.info(f"in run_frontendReactAction : {tag} {arg}")
@@ -89,9 +117,18 @@ def all_things_page(wp):
                 tdbref = locate_de(arg.tapk)
                 dbref_dockbar.undockde(tdbref)
             case wf.FrontendReactActionTag.UpdateChart:
-                cjs_plt_cfg = build_pltcfg(cjs_cfg)
-                print("update chart with : ", cjs_plt_cfg)
-                dbref_chartcbox.chartjs.new_chart(cjs_plt_cfg)
+                # refresh rebBoard, cjs_cfg, cfgAttrMeta, ui, cjs
+                print("calling UpdateChart")
+                refBoard_.clear_changed_history()
+                wf.refresh(refBoard_)
+                for kpath in refBoard_.get_changed_history():
+                    kpath = kpath.lstrip()
+                    cjs_cfg_path = re.sub("/val$", "", kpath)
+                    print(f"refBoard path:{kpath}:{cjs_cfg_path}:")
+                    wf.dupdate(cjs_cfg, cjs_cfg_path, dget(refBoard_, kpath))
+                    print("UpdateChart: ", dget(cjs_cfg, cjs_cfg_path))
+                update_ui()
+                refresh_chart()
                 pass
 
         pass
@@ -107,31 +144,11 @@ def all_things_page(wp):
             old_val = dget(cjs_cfg, dbref.key)
             wf.dupdate(cjs_cfg, dbref.key, msg.value)
             cfgAttrMeta.clear_changed_history()
-            update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
-            for kpath in cfgAttrMeta.get_changed_history():
-                print(f"update_ui_component:cfgattrmeta: {kpath}")
-                kpath = kpath.lstrip()
-                attrmeta = dget(cfgAttrMeta, kpath)
-                dbref = dget(refBoard_, kpath)._go.target
+            update_ui()
+            refresh_chart()
+            # fold in the changes into refBoard
+            wf.refresh(refBoard_, [dbref.key])
 
-                if attrmeta.active and 'hidden' in dbref.classes:
-                    dbref.remove_class("hidden")
-                    #print(kpath, " ", dbref.classes)
-                elif not attrmeta.active and not 'hidden' in dbref.classes:
-                    dbref.set_class("hidden")
-            # if new attrmeta elements have active;add them to cjs_cfg
-            update_chartCfg(cfgAttrMeta, cjs_cfg)
-            cfgAttrMeta.clear_changed_history()
-            cjs_cfg.clear_changed_history()
-            run_frontendReactAction(
-                wf.FrontendReactActionTag.UpdateChart, None)
-            # refBoard_.clear_changed_history()
-            # wf.refresh(refBoard_)
-            # for kpath in refBoard_.get_changed_history():
-            #     print ("update_ui_components: changed ui kpath = ", kpath)
-            #     kpath = kpath.lstrip()
-            #     cjs_cfg_path = re.sub("/val$", "", kpath)
-            #     print(f"refBoard path:{kpath}:{cjs_cfg_path}:")
         except Exception as e:
             print("exception : ", e)
             traceback. print_exc()
@@ -157,6 +174,7 @@ def launcher(request):
         all_things_page(wp)
     except Exception as e:
         print("error occured ", e)
+        traceback. print_exc()
         raise e
     return wp
 

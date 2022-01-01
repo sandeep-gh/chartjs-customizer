@@ -16,13 +16,16 @@ def build_pltcfg(chart_cfg):
                 return '/options/parsing', False
             case '/options/parsing/value', True:
                 return None  # let xkeys and ykeys take care of it
+
             case _:
                 return kpath, val
 
     plt_cfg = Dict()
     for kpath, val in map(lambda _: to_chartcfg_path(_[0], _[1]), dictWalker(chart_cfg)):
+        print("build_pltcfg ", kpath, " ", val)
         dnew(plt_cfg, kpath, val)
 
+    print("done build_pltcfg")
     return plt_cfg
 
 
@@ -80,7 +83,7 @@ datavals = [[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}],
 
 def datagen(labels, datavals):
     for idx, label, dataval in zip(range(len(labels)), labels, datavals):
-        dataitem = Dict()
+        dataitem = Dict(track_changes=True)
         dataitem.label = label
         dataitem.data = dataval
         dataitem.borderColor = colorset[idx]
