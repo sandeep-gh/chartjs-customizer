@@ -22,6 +22,12 @@ from .chartcfg import update_chartCfg, update_cfgattrmeta, add_dataset, build_pl
 extend_enum(wf.FrontendReactActionTag, 'UpdateChart', auto())
 
 
+def decode_styreport(tlc, styreport):
+    wp.tlc
+
+    pass
+
+
 def page_ready(self, msg):
     '''
     update dl login status after the page is ready
@@ -29,7 +35,8 @@ def page_ready(self, msg):
     styreport = wf.styreport()
     opts = jsbeautifier.default_options()
     res = jsbeautifier.beautify(json.dumps(styreport), opts)
-    # print(res)
+    print(res)
+    print(wp.tlc)
     #print("on page ready ", styreport)
     return
 
@@ -76,6 +83,14 @@ def all_things_page(wp):
     dbref_dockbar = dbref_rootde.getItem('dockbar')
     dbref_noticeboard = dbref_rootde.getItem('noticeboard')
     dbref_chartcbox = dbref_rootde.getItem("pltcanvas")
+    wp.tlc = dbref_rootde
+
+    # =========================== styreport ==========================
+    styreport = wf.styreport()
+    root, rootv = next(iter(styreport.items()))
+    for key, kpath, dbref, dbsty in wf.styreport_walker(rootv, root, "", dbref_rootde):
+        print(key, kpath, dbref, dbsty)
+    # ============================== end =============================
 
     def update_ui():
         """update ui on update to cjs_cfg

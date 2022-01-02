@@ -5,7 +5,7 @@
 from chartjs_customizer.configchart_wp_bits_and_pieces import launcher, page_ready
 import justpy as jp
 
-#wp = launcher(None)
+wp = launcher(None)
 # page_ready(wp, None)
-app = jp.app
-jp.justpy(launcher, start_server=False)
+# app = jp.app
+# jp.justpy(launcher, start_server=False)
