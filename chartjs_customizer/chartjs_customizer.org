@@ -1,3 +1,9 @@
+* Development notes
+** subgroup_iter : 
+** group
+** update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
+look at new changes in cjs_cfg -- make  associated attributes in cfgAttrMeta active
+
 * Journal and todos
 ** TODO stackW in cfgpanel_sbs for gutter width
 

@@ -23,8 +23,6 @@ extend_enum(wf.FrontendReactActionTag, 'UpdateChart', auto())
 
 
 def decode_styreport(tlc, styreport):
-    wp.tlc
-
     pass
 
 

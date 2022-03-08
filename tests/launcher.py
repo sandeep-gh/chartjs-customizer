@@ -2,10 +2,39 @@
 #from chartjs_customizer.getChartdata_wp_bits_and_pieces import launcher
 #from chartjs_customizer.dashboard_v2 import launcher
 #from chartjs_customizer.just_chartjs_plt import launcher
-from chartjs_customizer.configchart_wp_bits_and_pieces import launcher, page_ready
-import justpy as jp
+#from chartjs_customizer.configchart_wp_bits_and_pieces import launcher, page_ready
+#from chartjs_customizer.chartjs_customizer import launcher
+import logging
+import os
+if os:
+    try:
+        os.remove("launcher.log")
+    except:
+        pass
 
-wp = launcher(None)
+import sys
+if sys:
+    logging.basicConfig(filename="launcher.log", level=logging.INFO)
+
+from chartjs_customizer.wp_initialSetup import wp_initialSetup
+import justpy as jp
+if os:
+    from tracker import _hcs, refBoard
+
+
+#wp = launcher(None)
+# wp = wp_initialSetup(None)
+# _hcs['/type'].target.selector.value = 'line'  # mimic key press
+
+# _hcs['/options/parsing/value'].target.value = True
+
+# #print("_hcs == ", _hcs['/type'].target.selector.value)
+# logging.debug("respond to uic change in value")
+# wp.update_ui_component(_hcs['/type'].target, None)
+#print("refBoard = ", refBoard)
+
+# wp.update_ui_component()
 # page_ready(wp, None)
-# app = jp.app
-# jp.justpy(launcher, start_server=False)
+app = jp.app
+jp.justpy(wp_initialSetup, start_server=False)
+#jp.justpy(launcher, start_server=False)

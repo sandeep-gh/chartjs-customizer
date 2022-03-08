@@ -4,8 +4,6 @@ from dpath.util import get as dget
 from dpath.util import set as dset
 import jsbeautifier
 from addict import Dict, walker as dictWalker
-from webapp_framework import dur, dc, dbr, heading__gen
-from webapp_framework import MRVWLR, TaskStack, FrontendReactActionTag
 import webapp_framework as wf
 from justpy_chartjs.tags import cfg_template as ct
 from . import snowsty as sty
@@ -14,7 +12,7 @@ from . import attrmeta
 
 #top_level_group = ["scales"]
 top_level_group = ["options"]
-tier1_level_group = {"options": ["elements"], "options": ["scales/xAxis"],
+tier1_level_group = {"options": ["elements", "scales/xAxis"]
                      "data": []}
 
 
@@ -88,16 +86,13 @@ def cfggroup_panel_(grouptag,  chartcfg, cfgattrmeta, refBoard_):
     # ============================ end ===========================
 
     top_level_ui = {"options":
-                    wf.register(dbrefBoard,
-                                wf.hc.StackW_("options",
-                                              wf.uic_iter("options",
-                                                          subgroup_iter(
-                                                              "options", None),
-                                                          refBoard_
-                                                          ),
-                                              pcp=sty.cfgpanels.options
-                                              )
-                                )
+                    wf.StackG_("options",
+                               wfx.uic_iter("options",
+                                            subgroup_iter(
+                                                "options", None),
+                                            ),
+                               pcp=sty.cfgpanels.options
+                               )
                     }
     tier1_level_ui = Dict()
 
@@ -138,28 +133,28 @@ def cfggroup_panel_(grouptag,  chartcfg, cfgattrmeta, refBoard_):
 
                 # yield vv
 
-    @MRVWLR
+    @wf.MRVWLR
     def on_submit_click(dbref, msg):
-        rts = TaskStack()
-        rts.addTask(FrontendReactActionTag.UpdateChart, None)
+        rts = wf.TaskStack()
+        rts.addTask(wf.FrontendReactActionTag.UpdateChart, None)
         return msg.page, rts
     # heading_ = heading__gen(
     #     f"Configure Chart: {grouptag.value} chart config options")
     # cfgblks_ = dc.StackG_("cfgpanel", cgens=cfgblks_iter(),
     #                       pcp=ui_styles.cfgpanels.cfgpanel)
 
-    cfgblks_ = wf.hc.StackV_("cfgpanel", cgens=cfgblks_iter(),
-                             pcp=sty.cfgpanels.cfgpanel)
+    cfgblks_ = wf.StackV_("cfgpanel", cgens=cfgblks_iter(),
+                          pcp=sty.cfgpanels.cfgpanel)
 
     # submit_ = dur.divbutton_(
     #     f"{grouptag.value}Submit",  f"{grouptag.value}submit", "submit", on_submit_click)
-    submit_ = wf.hc.Wrapdiv_(wf.hc.Button_(
+    submit_ = wf.Wrapdiv_(wf.hc.Button_(
         "Submit",  "Submit", "Config Chart", on_submit_click))
     # ic_ = dc.Infocard_(f'ic{grouptag.value}',  cgens=[
     #     heading_, cfgblks_, submit_], pcp=sty.cfgpanels.infocard)
 
-    ic_ = wf.hc.StackV_(f'ic',  cgens=[
+    ic_ = wf.StackV_('ic',  cgens=[
         cfgblks_, submit_], pcp=sty.infocard)
-    controlpanel_ = wf.hc.Subsection_(f"controlpanel{grouptag.value}",
-                                      "Configure chart", ic_)
+    controlpanel_ = wf.Subsection_(f"controlpanel{grouptag.value}",
+                                   "Configure chart", ic_)
     return controlpanel_

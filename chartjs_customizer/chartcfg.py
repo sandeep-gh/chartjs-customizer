@@ -1,4 +1,8 @@
 import logging
+import os
+if os:
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
 from addict import Dict, walker as dictWalker
 from dpath.exceptions import PathNotFound
 from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
@@ -41,27 +45,33 @@ def update_chartCfg(cfgattrmeta, cjscfg):
     # remove everything thats changed and put it
     # back in only the active ones: this enables deletion
     for kpath in cfgattrmeta.get_changed_history():
-        print(f"update_chartCfg: cfgattrmeta:change{kpath}")
+        logger.debug("start update_chartCfg")
+        logger.info(f"path {kpath} changed in cfgattrmeta")
         try:
             dpop(cjscfg, kpath, None)
         except PathNotFound as e:
-            logging.info("skipping {kpath} as its not found in cjs_cfg")
+            logger.info(f"skipping: {kpath} not found in cjscfg")
             pass  # skip if path is not in chartcfg
 
     for kpath in filter(lambda kpath: dget(cfgattrmeta, kpath).active,
                         cfgattrmeta.get_changed_history()):
         evalue = attrmeta.get_defaultVal(dget(cfgattrmeta, kpath))
         dnew(cjscfg, kpath, evalue)
+        logger.debug(f"path {kpath} updated with {evalue} in cjscfg")
+    logger.debug("done update_chartCfg")
     # cfgattrmeta.clear_changed_history()
 
 
 def update_cfgattrmeta(chartcfg, cfgAttrMeta):
     """update cfgattrmeta corresponding to changes in chartcfg
     """
-
+    logger.debug("update cfgattrmeta: to reflect chartcfg changes")
     for kpath in chartcfg.get_changed_history():
+        logger.debug(f"{kpath} changed in chartcfg")
         attrmeta.update_cfgattrmeta_kpath(kpath, dget(
             chartcfg, kpath), cfgAttrMeta, chartcfg)
+
+    logger.debug("done update_cfgattrmeta...")
 
 
 # ===================== all things plotting data =====================
