@@ -53,3 +53,69 @@ for all the newly active attrmeta -- add the corresponding kpath and default val
 
 
 
+
+* various ways to configure chartjs
+
+*** title attr config
+
+
+
+
+*** TODO background as pattern
+#+BEGIN_SRC
+  const img = new Image();
+img.src = 'https://example.com/my_image.png';
+img.onload = function() {
+    const ctx = document.getElementById('canvas').getContext('2d');
+    const fillPattern = ctx.createPattern(img, 'repeat');
+    const chart = new Chart(ctx, {
+        data: {
+            labels: ['Item 1', 'Item 2', 'Item 3'],
+            datasets: [{
+                data: [10, 20, 30],
+                backgroundColor: fillPattern
+            }]
+        }
+    });
+};
+#+END_SRC
+
+
+#+BEGIN_SRC
+const chartData = {
+    datasets: [{
+        data: [45, 25, 20, 10],
+        backgroundColor: [
+            pattern.draw('square', '#ff6384'),
+            pattern.draw('circle', '#36a2eb'),
+            pattern.draw('diamond', '#cc65fe'),
+            pattern.draw('triangle', '#ffce56')
+        ]
+    }],
+    labels: ['Red', 'Blue', 'Purple', 'Yellow']
+};
+#+END_SRC
+
+** data
+type
+data(datasets, labels)
+*** multiline labels
+*** TODO custom  data access paths
+parsing/xAxisKey
+parsing/yAxisKey
+*** TODO pie/doughnut chart type
+type: 'doughnut',
+data: {
+    datasets: [{
+        data: [{id: 'Sales', nested: {value: 1500}}, {id: 'Purchases', nested: {value: 500}}]
+    }]
+},
+options: {
+    parsing: {
+        key: 'nested.value'
+    }
+}
+
+In this mode, property name is used for index scale and value for value scale.
+For vertical charts, index scale is x and value scale is y.
+

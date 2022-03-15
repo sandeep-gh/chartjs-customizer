@@ -4,7 +4,7 @@ based on their types
 import logging
 if logging:
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
 
 from typing import NamedTuple, Any
@@ -42,7 +42,7 @@ def build_uic(key, label, attrMeta):
 
             match attrMeta.vrange:
                 case type():
-                    return wf.TextInput_(key,  label, attrMeta.default, no_action, pcp=pcp)
+                    return wf.TextInput_(key,  label, attrMeta.default, no_action, input_type='input', pcp=pcp)
                 case[x, y]:
                     return wf.Wrapdiv_(
                         wf.WithBanner_(
@@ -59,7 +59,7 @@ def build_uic(key, label, attrMeta):
             match attrMeta.vrange:
                 case type():
                     return wf.TextInput_(
-                        key, label, attrMeta.default, no_action, pcp=pcp)
+                        key, label, attrMeta.default, reactor, pcp=pcp)
 
                 case[x, y]:
                     print("skipping str", key)

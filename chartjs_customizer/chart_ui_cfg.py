@@ -263,6 +263,9 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
     """
      add/delete attrMeta in cfgMeta based on new attr settings
     """
+
+    # iterate over all attributes and
+
     match(kpath, val):
         case("/type", None):
             attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", False)

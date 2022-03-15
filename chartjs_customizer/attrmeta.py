@@ -89,9 +89,9 @@ def get_basecfg():
                                                  }), uiorgCat.initial, True, all_context)
 
     _base.options.parsing.x = AttrMeta(
-        'x', str, str, uiorgCat.initial, False, [('options/parsing', 'True')])  # active only if /options/parsing is True
+        'x', str, str, uiorgCat.initial, False, [('options/parsing', True)])  # active only if /options/parsing is True
     _base.options.parsing.y = AttrMeta(
-        'y', str, str, uiorgCat.initial, False, [('options/parsing', 'True')])
+        'y', str, str, uiorgCat.initial, False, [('options/parsing', True)])
     _base.options.parsing.id = AttrMeta('id', str, str, uiorgCat.initial, False, [
         ('options/parsing', 'True')])
 
@@ -102,9 +102,9 @@ def get_basecfg():
 
     # _base.options.plugins.title = Dict()
     _base.options.plugins.title.display = AttrMeta(
-        True, bool, bool, uiorgCat.simple, True, all_context)
+        False, bool, bool, uiorgCat.simple, True, all_context)
     _base.options.plugins.title.text = AttrMeta(
-        "plot_title", str, str, uiorgCat.simple, True, all_context)
+        "plot_title", str, str, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
 
     # ========================= elements/line ========================
 
@@ -182,9 +182,9 @@ def get_defaultVal(attrmeta):  # TODO: ask SO if there is a better way to
 
 
 def attrupdate(cfgattrmeta, kpath, active):
-    logger.debug(f"attrupdate {kpath}")
+    logger.debug(f"attrupdate {kpath} {active} {bool(active)}g")
     attrmeta = dget(cfgattrmeta, kpath)
-    attrmeta = attrmeta._replace(active=active)
+    attrmeta = attrmeta._replace(active=bool(active))
     wf.dupdate(cfgattrmeta, kpath, attrmeta)
 
 
@@ -203,6 +203,9 @@ def attrmeta_in_context(ctx, cfgattrmeta):
     for kpath, attrmeta in filter(lambda _: is_visible(_[1]),
                                   dictWalker(cfgattrmeta)
                                   ):
+        if 'title' in kpath:
+            logger.debug(f"ctxmp {attrmeta.context} {ctx}")
+
         if ctx in attrmeta.context:
             yield kpath
 
@@ -212,7 +215,13 @@ def attrmeta_in_context(ctx, cfgattrmeta):
 def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
     """the key function: update cfgattrmeta if context changes
     """
-    logger.debug(f"update_cfgattrmeta_kpath: {kpath}")
+
+    ctx = (kpath, val)
+    logger.info(f"update_cfgattrmeta_kpath: {kpath} {ctx}")
+    for dpath in attrmeta_in_context(ctx, cfgattrmeta):
+        attrupdate(cfgattrmeta, dpath, val)
+        logger.debug(f"paths in ctx: {dpath}")
+
     match(kpath, val):
         case("/type", None):
             attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", False)
@@ -229,7 +238,6 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
             for _ in ['color', 'borderColor', 'tickColor']:  # deal with circular later
                 attrupdate(
                     cfgattrmeta, f"/options/scales/xAxis/grid/{_}", True)
-
         case("/options/parsing/value", True):
             # TODO: make it more generic by using FalseDict type
             #parsing_metaval = cfgattrmeta.options.parsing.value

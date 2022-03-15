@@ -2,7 +2,7 @@ import logging
 import os
 if os:
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 from addict import Dict, walker as dictWalker
 from dpath.exceptions import PathNotFound
 from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
@@ -26,10 +26,10 @@ def build_pltcfg(chart_cfg):
 
     plt_cfg = Dict()
     for kpath, val in map(lambda _: to_chartcfg_path(_[0], _[1]), dictWalker(chart_cfg)):
-        print("build_pltcfg ", kpath, " ", val)
+        #print("build_pltcfg ", kpath, " ", val)
         dnew(plt_cfg, kpath, val)
 
-    print("done build_pltcfg")
+    #print("done build_pltcfg")
     return plt_cfg
 
 
@@ -45,16 +45,23 @@ def update_chartCfg(cfgattrmeta, cjscfg):
     # remove everything thats changed and put it
     # back in only the active ones: this enables deletion
     for kpath in cfgattrmeta.get_changed_history():
-        logger.debug("start update_chartCfg")
-        logger.info(f"path {kpath} changed in cfgattrmeta")
+        logger.debug(f"path {kpath} changed in cfgattrmeta")
         try:
             dpop(cjscfg, kpath, None)
         except PathNotFound as e:
             logger.info(f"skipping: {kpath} not found in cjscfg")
             pass  # skip if path is not in chartcfg
 
-    for kpath in filter(lambda kpath: dget(cfgattrmeta, kpath).active,
+    def logdebug(kpath):
+        if 'title' in kpath:
+            logger.debug(f"kuchkuch {kpath} {dget(cfgattrmeta, kpath)}")
+        return dget(cfgattrmeta, kpath).active
+
+    # for kpath in filter(lambda kpath: dget(cfgattrmeta, kpath).active,
+    #                    cfgattrmeta.get_changed_history()):
+    for kpath in filter(logdebug,
                         cfgattrmeta.get_changed_history()):
+
         evalue = attrmeta.get_defaultVal(dget(cfgattrmeta, kpath))
         dnew(cjscfg, kpath, evalue)
         logger.debug(f"path {kpath} updated with {evalue} in cjscfg")
@@ -65,9 +72,9 @@ def update_chartCfg(cfgattrmeta, cjscfg):
 def update_cfgattrmeta(chartcfg, cfgAttrMeta):
     """update cfgattrmeta corresponding to changes in chartcfg
     """
-    logger.debug("update cfgattrmeta: to reflect chartcfg changes")
+    logger.info("update cfgattrmeta: to reflect chartcfg changes")
     for kpath in chartcfg.get_changed_history():
-        logger.debug(f"{kpath} changed in chartcfg")
+        logger.info(f"{kpath} changed in chartcfg")
         attrmeta.update_cfgattrmeta_kpath(kpath, dget(
             chartcfg, kpath), cfgAttrMeta, chartcfg)
 
@@ -82,12 +89,12 @@ colorset = default_colorset = pick_colors_from_anchors(
     colorSchemes["default"], 8)
 
 labels = ["ds1", "ds2", "ds3", "ds4", "ds5"]
-datavals = [[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}],
-            [{'x': 1, 'y': 7}, {'x': 5, 'y': 2}],
-            [{'x': 1, 'y': 0}, {'x': 5, 'y': 8}],
-            [{'x': 1, 'y': 13}, {'x': 5, 'y': 2}],
-            [{'x': 1, 'y': 2}, {'x': 5, 'y': 6}],
-            [{'x': 1, 'y': 9}, {'x': 5, 'y': 7}],
+datavals = [[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}, {'x': 7, 'y': 7}],
+            [{'x': 1, 'y': 7}, {'x': 5, 'y': 2}, {'x': 7, 'y': 3}],
+            [{'x': 1, 'y': 0}, {'x': 5, 'y': 8}, {'x': 7, 'y': 5}],
+            [{'x': 1, 'y': 13}, {'x': 5, 'y': 2}, {'x': 7, 'y': 1}],
+            [{'x': 1, 'y': 2}, {'x': 5, 'y': 6}, {'x': 7, 'y': 6}],
+            [{'x': 1, 'y': 9}, {'x': 5, 'y': 7}, {'x': 7, 'y': 9}],
             ]
 
 

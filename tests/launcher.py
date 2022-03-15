@@ -16,11 +16,14 @@ import sys
 if sys:
     logging.basicConfig(filename="launcher.log", level=logging.INFO)
 
+
 from chartjs_customizer.wp_initialSetup import wp_initialSetup
-import justpy as jp
+from chartjs_customizer.wp_chartjs_customizer import wp_chartjs_customizer
 if os:
     from tracker import _hcs, refBoard
 
+import justpy as jp
+from addict import Dict
 
 #wp = launcher(None)
 # wp = wp_initialSetup(None)
@@ -36,5 +39,15 @@ if os:
 # wp.update_ui_component()
 # page_ready(wp, None)
 app = jp.app
-jp.justpy(wp_initialSetup, start_server=False)
-#jp.justpy(launcher, start_server=False)
+#jp.justpy(wp_initialSetup, start_server=False)
+jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
+
+# wp = wp_chartjs_customizer(None)
+# _hcs['/type'].target.selector.value = 'line'  # mimic key press
+
+# dbref = _hcs.optionsCtx['/options/scales/xAxis/grid/display'].target
+# dbref.value = True
+# msg = Dict()
+# msg.value = True
+
+# wp.update_ui_component(dbref, msg)
