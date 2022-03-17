@@ -4,6 +4,7 @@ import traceback
 import logging
 import os
 import dill as pickle
+import re
 if logging:  # pin code here so that ide doesn't move around the import statements
     # try:
     #     os.remove("chartjs_customizer.log")
@@ -29,6 +30,12 @@ from aenum import extend_enum, auto
 import jsbeautifier
 from .chartjs_customizer_components import cfggroup_panel_
 import json
+
+
+def page_ready(self, msg):
+    refBoard.clear_changed_history()
+    wf.refresh(refBoard)
+
 
 # ========================== init cjs_cfg =========================
 # chartjs configuration as nested-addict-AttrMeta
@@ -68,45 +75,41 @@ def make_wp_react(wp):
     ui attributes and states
     """
 
-    def react_ui(tag, arg):
-        match tag:
-            case wf.ReactTag_UI.UpdateChart:
-                refBoard.clear_changed_history()
-                wf.refresh(refBoard)
-                for kpath in refBoard.get_changed_history():
-                    kpath = kpath.lstrip()
-                    logger.debug(
-                        f"react_ui:TBD: path:{kpath} {dget(refBoard, kpath)} ")
-
-                update_ui()
-                refresh_chart()
-
     def update_ui():
         """update ui on update to cjs_cfg
         1. update cfgattrmeta based on context
         2. update ui 'hidden' attribute based newly active cfgattrmeta
         """
+        logger.debug("in update_ui")
+        logger.debug("bt_update_cfgattrmeta")
         update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
+        logger.debug("end_update_cfgattrmeta")
+
         for kpath in cfgAttrMeta.get_changed_history():
             logger.debug(f"handle changed {kpath}")
             kpath = kpath.lstrip()
             attrmeta = dget(cfgAttrMeta, kpath)
-            logger.debug(f"lookup {kpath} {stubStore[kpath]}")
 
             # dget(refBoard_, kpath)._go.target
             dbref = dget(refBoard, kpath)._go.target
-            logger.debug(f"dbref for {kpath} via refBoard: {dbref}")
 
             if attrmeta.active and 'hidden' in dbref.classes:
+                logger.debug(f"unhide {kpath}")
                 dbref.remove_class("hidden")
+
                 # print(kpath, " ", dbref.classes)
             elif not attrmeta.active and not 'hidden' in dbref.classes:
+                logger.debug(f"hide {kpath}")
                 dbref.set_class("hidden")
             # if new attrmeta elements have active;add them to cjs_cfg
         # we should loop over updates until fix point is reached
+
+        logger.debug("bt_update_chartcfg")
         update_chartCfg(cfgAttrMeta, cjs_cfg)
+        logger.debug("end_update_chartcfg")
         cfgAttrMeta.clear_changed_history()
         cjs_cfg.clear_changed_history()
+        logger.debug("done update_ui")
 
     def refresh_chart():
         cjs_plt_cfg = build_pltcfg(cjs_cfg)
@@ -128,7 +131,24 @@ def make_wp_react(wp):
             f"react: updated cjs_cfg: key={dbref.key} with value {msg.value}")
         update_ui()
         refresh_chart()
+
+    def react_ui(tag, arg):
+        match tag:
+            case wf.ReactTag_UI.UpdateChart:
+                refBoard.clear_changed_history()
+                wf.refresh(refBoard)
+                for kpath in refBoard.get_changed_history():
+                    kpath = kpath.lstrip()
+                    logger.debug(
+                        f"react_ui:TBD: path:{kpath} {dget(refBoard, kpath)} ")
+                    # horrible approach
+                    cjs_cfg_path = re.sub("/val$", "", kpath)
+                    wf.dupdate(cjs_cfg, cjs_cfg_path, dget(refBoard, kpath))
+
+                refresh_chart()
+
     wp.update_ui_component = update_ui_component
+    wp.react_ui = react_ui
 
 
 @ jp.SetRoute('/customize_chartjs')
@@ -151,5 +171,5 @@ def wp_chartjs_customizer(request):
     # """
 
     # ================ initialize chart and ui configs ===============
-
+    wp.on('page_ready', page_ready)
     return wp

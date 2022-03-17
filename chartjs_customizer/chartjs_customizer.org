@@ -1,4 +1,28 @@
+* TODOs
+** TODO generic way to handle aenums
+in get_defaultVal, uic_generator , etc.
+** deal with fonts
+https://www.chartjs.org/docs/latest/general/fonts.html
+
+Legend Label Configuration
+
+onClick
+onHover
+textDirection
+
+basically add more config crap
+https://www.chartjs.org/docs/latest/configuration/elements.html
+https://www.chartjs.org/docs/latest/general/fonts.html
+
+** deal with locale
+i3 keyboard mapping
+
 * Development notes
+
+** chartcfg
+*** update_chartcfg
+take
+
 ** subgroup_iter : 
 ** group
 ** update_cfgattrmeta(cjs_cfg, cfgAttrMeta)

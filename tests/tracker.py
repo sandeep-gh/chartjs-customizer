@@ -9,7 +9,7 @@ from webapp_framework_extn import dbrefBoard
 logger = logging.getLogger(__name__)
 
 _hcs = Dict()
-refBoard = Dict()
+refBoard = Dict(track_changes=True)
 _currTracker = _hcs
 _currSpath = "/"
 session_dict = {}

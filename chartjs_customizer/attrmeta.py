@@ -54,6 +54,12 @@ class PlotType(Enum):
     Undef = None
 
 
+class TextAlign(Enum):
+    start = "start"
+    center = "center"
+    end = "end"
+
+
 class Color(Enum):
     pass
 
@@ -86,25 +92,74 @@ def get_basecfg():
                                                                False, [('/options/parsing/', True)]),
                                                  'y': AttrMeta('y', str, str,  uiorgCat.initial, False, [('/options/parsing/', True)]),
                                                  'id': AttrMeta('id', str, str, uiorgCat.initial, False, [('/options/parsing/', True)])
-                                                 }), uiorgCat.initial, True, all_context)
+                                                 }), uiorgCat.TBD, True, all_context)
 
     _base.options.parsing.x = AttrMeta(
-        'x', str, str, uiorgCat.initial, False, [('options/parsing', True)])  # active only if /options/parsing is True
+        'x', str, str, uiorgCat.TBD, False, [('options/parsing', True)])  # active only if /options/parsing is True
     _base.options.parsing.y = AttrMeta(
-        'y', str, str, uiorgCat.initial, False, [('options/parsing', True)])
-    _base.options.parsing.id = AttrMeta('id', str, str, uiorgCat.initial, False, [
+        'y', str, str, uiorgCat.TBD, False, [('options/parsing', True)])
+    _base.options.parsing.id = AttrMeta('id', str, str, uiorgCat.TBD, False, [
         ('options/parsing', 'True')])
 
     # _base.options.plugins = Dict()
     # _base.options.plugins.legend = Dict()
-    _base.options.plugins.legend.position = AttrMeta(
-        Position.top, Position, Position, uiorgCat.simplemore, True, all_context)
+    _base.options.plugins.legend.display = AttrMeta(
+        False, bool, bool, uiorgCat.simple, True, all_context)
 
-    # _base.options.plugins.title = Dict()
+    _base.options.plugins.legend.position = AttrMeta(
+        Position.top, Position, Position, uiorgCat.simplemore, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    _base.options.plugins.legend.align = AttrMeta(
+        TextAlign.center, TextAlign, TextAlign, uiorgCat.simplemore, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    _base.options.plugins.legend.maxHeight = AttrMeta(
+        20, int, int, uiorgCat.simplemore, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    _base.options.plugins.legend.maxWidth = AttrMeta(
+        80, int, int, uiorgCat.simplemore, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    _base.options.plugins.legend.fullSize = AttrMeta(
+        False, bool, bool, uiorgCat.simplemore, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    _base.options.plugins.legend.reverse = AttrMeta(
+        False, bool, bool, uiorgCat.simplemore, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    _base.options.plugins.legend.rtl = AttrMeta(
+        False, bool, bool, uiorgCat.simplemore, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
     _base.options.plugins.title.display = AttrMeta(
         False, bool, bool, uiorgCat.simple, True, all_context)
     _base.options.plugins.title.text = AttrMeta(
         "plot_title", str, str, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
+    _base.options.plugins.title.align = AttrMeta(
+        TextAlign.center, TextAlign, TextAlign, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
+    _base.options.plugins.title.color = AttrMeta(
+        twt.blue/5, Color, Color, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
+    _base.options.plugins.title.fullSize = AttrMeta(
+        False, bool, bool, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
+
+    _base.options.plugins.title.position = AttrMeta(
+        Position.top, Position, Position, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
+
+    _base.options.plugins.title.padding = AttrMeta(
+        10, int, int, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
+
+    _base.options.plugins.subtitle.display = AttrMeta(
+        False, bool, bool, uiorgCat.simple, True, all_context)
+    _base.options.plugins.subtitle.text = AttrMeta(
+        "plot_subtitle", str, str, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
+    _base.options.plugins.subtitle.align = AttrMeta(
+        TextAlign.center, TextAlign, TextAlign, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
+    _base.options.plugins.subtitle.color = AttrMeta(
+        twt.blue/5, Color, Color, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
+    _base.options.plugins.subtitle.fullSize = AttrMeta(
+        False, bool, bool, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
+
+    _base.options.plugins.subtitle.position = AttrMeta(
+        Position.top, Position, Position, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
+
+    _base.options.plugins.subtitle.padding = AttrMeta(
+        10, int, int, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
 
     # ========================= elements/line ========================
 
@@ -170,7 +225,7 @@ def get_defaultVal(attrmeta):  # TODO: ask SO if there is a better way to
         case "<aenum 'FalseDict'>":
             return cam.default
 
-        case "<aenum 'Position'>" | "<aenum 'PlotType'>":
+        case "<aenum 'Position'>" | "<aenum 'PlotType'>" | "<aenum 'TextAlign'>":
             return cam.default.value
 
         case "<aenum 'Color'>":
@@ -220,7 +275,7 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
     logger.info(f"update_cfgattrmeta_kpath: {kpath} {ctx}")
     for dpath in attrmeta_in_context(ctx, cfgattrmeta):
         attrupdate(cfgattrmeta, dpath, val)
-        logger.debug(f"paths in ctx: {dpath}")
+        logger.debug(f"{dpath}")
 
     match(kpath, val):
         case("/type", None):

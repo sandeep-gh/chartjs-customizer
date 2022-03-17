@@ -29,6 +29,10 @@ def input_change(dbref, msg):
     pass
 
 
+def update_chart(dbref, msg):
+    msg.page.react_ui(wf.ReactTag_UI.UpdateChart, None)
+
+
 def build_uic(key, label, attrMeta):
     """
     build uic generator from attr description
@@ -42,12 +46,12 @@ def build_uic(key, label, attrMeta):
 
             match attrMeta.vrange:
                 case type():
-                    return wf.TextInput_(key,  label, attrMeta.default, no_action, input_type='input', pcp=pcp)
+                    return wf.TextInput_(key,  label, attrMeta.default, update_chart, input_type='input', pcp=pcp)
                 case[x, y]:
                     return wf.Wrapdiv_(
                         wf.WithBanner_(
                             key,  wf.Slider_(key, range(
-                                x, y), attrMeta.default, reactor), label, pcp=pcp
+                                x, y), attrMeta.default, update_chart), label, pcp=pcp
                         ), [db.f, jc.center, mr/2]
                     )
 
@@ -59,7 +63,7 @@ def build_uic(key, label, attrMeta):
             match attrMeta.vrange:
                 case type():
                     return wf.TextInput_(
-                        key, label, attrMeta.default, reactor, pcp=pcp)
+                        key, label, attrMeta.default, update_chart, input_type='input', pcp=pcp)
 
                 case[x, y]:
                     print("skipping str", key)
@@ -71,11 +75,11 @@ def build_uic(key, label, attrMeta):
             match attrMeta.vrange:
                 case type():
                     return wf.TextInput_(
-                        key, label, attrMeta.default, no_action, pcp=pcp)
+                        key, label, attrMeta.default, update_chart, pcp=pcp)
 
                 case[x, y]:
                     return wf.TextInput_(
-                        key, label, attrMeta.default, no_action, pcp=pcp)
+                        key, label, attrMeta.default, update_chart, pcp=pcp)
                     #logger.debug(f"skipping float {key}")
 
                 case _:
@@ -83,7 +87,7 @@ def build_uic(key, label, attrMeta):
                     return None
 
         case "<aenum 'Color'>":
-            return wf.ColorSelectorWBanner_(key, label, reactor, pcp=[jc.center, *pcp])
+            return wf.ColorSelectorWBanner_(key, label, update_chart, pcp=[jc.center, *pcp])
 
         case "<class 'bool'>" | "<aenum 'FalseDict'>":
             # TODO: move to wf.fc
@@ -93,7 +97,7 @@ def build_uic(key, label, attrMeta):
 
             )
 
-        case "<aenum 'Position'>" | "<aenum 'PlotType'>":
+        case "<aenum 'Position'>" | "<aenum 'PlotType'>" | "<aenum 'TextAlign'>":
             return wf.Wrapdiv_(
                 wf.SelectorWBanner_(key, label,
                                     options=[
@@ -103,7 +107,7 @@ def build_uic(key, label, attrMeta):
                                     default_idx=[
                                         _.value for _ in attrMeta.vtype].index(attrMeta.default.value),
 
-                                    on_select=reactor, pcp=pcp
+                                    on_select=update_chart, pcp=pcp
                                     )
             )
     logger.debug(f"Not building ui for:  {key}")
