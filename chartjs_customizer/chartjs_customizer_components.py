@@ -7,11 +7,12 @@ if os:
 from addict import Dict, walker as dictWalker
 import webapp_framework as wf
 import webapp_framework_extn as wfx
-from . import attrmeta
+#from . import attrmeta
 from .cfgattr_uic import build_uic_iter
 from itertools import chain
 from .chartcfg import build_pltcfg
 from justpy_chartjs import chartjscomponents as cj
+from .attrmeta_basecfg_helper import is_visible
 top_level_group = ["options"]
 tier1_level_group = {"options": ["elements", "scales"],
                      "data": []}
@@ -40,7 +41,7 @@ def cfggroup_panel_(grouptag: str,  chartcfg: Dict, cfgattrmeta: Dict):
             # if attrmeta.group == grouptag:              #     return True
             # return False
         yield from filter(lambda _: is_in_group(_[0], _[1]),
-                          filter(lambda _: attrmeta.is_visible(_[1]),
+                          filter(lambda _: is_visible(_[1]),
                                  dictWalker(cfgattrmeta)
                                  )
                           )

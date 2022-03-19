@@ -1,4 +1,11 @@
 * TODOs
+** why is add_cfg.plugins.tooltips gets called twice
+
+
+** legend options are not working as expected
+** the dreaded adictchanged during iteration bug
+** deal with scaleID: this is hard-- since it is provided by user
+
 ** TODO  Bar Configuration
 ** Arc Configutation
 https://www.chartjs.org/docs/latest/configuration/elements.html#bar-configuration

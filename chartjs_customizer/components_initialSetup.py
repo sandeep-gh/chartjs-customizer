@@ -9,7 +9,9 @@ from itertools import chain
 
 import webapp_framework as wf
 import webapp_framework_extn as wfx
-from .attrmeta import get_basecfg, uiorgCat, FalseDict
+#from .attrmeta import get_basecfg, uiorgCat, FalseDict
+from .attrmeta_basecfg_helper import uiorgCat, FalseDict
+from .attrmeta_basecfg import get_basecfg
 from .cfgattr_uic import build_uic_iter
 from addict import Dict, walker as dictWalker
 if 'appdir' in os.environ:

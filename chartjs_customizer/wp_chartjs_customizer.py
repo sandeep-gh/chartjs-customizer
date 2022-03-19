@@ -20,7 +20,9 @@ if 'appdir' in os.environ:
 import justpy as jp
 
 import webapp_framework as wf
-from .attrmeta import get_basecfg, uiorgCat
+#from .attrmeta import get_basecfg, uiorgCat
+from .attrmeta_basecfg_helper import uiorgCat
+from .attrmeta_basecfg_orig import get_basecfg
 from .chartcfg import (add_dataset, build_pltcfg, update_cfgattrmeta,
                        update_chartCfg)
 from dpath.util import get as dget, set as dset,  new as dnew, search as dsearch

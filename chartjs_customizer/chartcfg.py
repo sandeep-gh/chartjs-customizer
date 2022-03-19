@@ -2,7 +2,7 @@ import logging
 import os
 if os:
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 from addict import Dict, walker as dictWalker
 from dpath.exceptions import PathNotFound
 from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
@@ -35,11 +35,7 @@ def build_pltcfg(chart_cfg):
 
 def update_chartCfg(cfgattrmeta, cjscfg):
     """
-    there are two copies of cfg: cjs_cfg and ui_cfg.
-    cjs_cfg is used for chartjs.
-    ui_cfg is for ui drawing.
-    value of ui_cfg is a tuple (bool, default_value). In the
-    cjs_cfg is what gets shipped to chartjs.
+
     """
 
     # remove everything thats changed and put it
