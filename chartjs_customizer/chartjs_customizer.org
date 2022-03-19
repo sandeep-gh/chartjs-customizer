@@ -1,4 +1,8 @@
 * TODOs
+** TODO  Bar Configuration
+** Arc Configutation
+https://www.chartjs.org/docs/latest/configuration/elements.html#bar-configuration
+
 ** TODO generic way to handle aenums
 in get_defaultVal, uic_generator , etc.
 ** deal with fonts
@@ -13,6 +17,8 @@ textDirection
 basically add more config crap
 https://www.chartjs.org/docs/latest/configuration/elements.html
 https://www.chartjs.org/docs/latest/general/fonts.html
+
+* line/point backgroundcolor not working
 
 ** deal with locale
 i3 keyboard mapping

@@ -38,11 +38,11 @@ from addict import Dict
 
 # wp.update_ui_component()
 # page_ready(wp, None)
-app = jp.app
+#app = jp.app
 #jp.justpy(wp_initialSetup, start_server=False)
-jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
+#jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 
-# wp = wp_chartjs_customizer(None)
+wp = wp_chartjs_customizer(None)
 # _hcs['/type'].target.selector.value = 'line'  # mimic key press
 
 # dbref = _hcs.optionsCtx['/options/scales/xAxis/grid/display'].target

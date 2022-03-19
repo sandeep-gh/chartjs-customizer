@@ -97,7 +97,7 @@ def build_uic(key, label, attrMeta):
 
             )
 
-        case "<aenum 'Position'>" | "<aenum 'PlotType'>" | "<aenum 'TextAlign'>":
+        case "<aenum 'Position'>" | "<aenum 'PlotType'>" | "<aenum 'TextAlign'>" | "<aenum 'PointStyle'>" | "<aenum 'cubicInterpolationMode'>" | "<aenum 'LineJoinStyle'>":
             return wf.Wrapdiv_(
                 wf.SelectorWBanner_(key, label,
                                     options=[

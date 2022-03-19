@@ -30,11 +30,12 @@ from aenum import extend_enum, auto
 import jsbeautifier
 from .chartjs_customizer_components import cfggroup_panel_
 import json
+from webapp_framework_tracking.dbrefBoard import refresh as dbrefBoard_refresh
 
 
 def page_ready(self, msg):
     refBoard.clear_changed_history()
-    wf.refresh(refBoard)
+    dbrefBoard_refresh(refBoard)
 
 
 # ========================== init cjs_cfg =========================
@@ -136,7 +137,7 @@ def make_wp_react(wp):
         match tag:
             case wf.ReactTag_UI.UpdateChart:
                 refBoard.clear_changed_history()
-                wf.refresh(refBoard)
+                dbrefBoard_refresh(refBoard)
                 for kpath in refBoard.get_changed_history():
                     kpath = kpath.lstrip()
                     logger.debug(

@@ -1,5 +1,5 @@
 """
-attrmeta is a graball module for all metadata about chartjs attributes 
+attrmeta is a graball module for all metadata about chartjs attributes
 """
 import logging
 if logging:
@@ -52,6 +52,36 @@ class PlotType(Enum):
     Scatter = "scatter"
     Bubble = "bubble"
     Undef = None
+
+
+class PointStyle(Enum):
+    circle = 'circle'
+    cross = 'cross'
+    crossRot = 'crossRot'
+    dash = 'dash'
+    line = 'line'
+    rect = 'rect'
+    rectRounded = 'rectRounded'
+    rectRot = 'rectRot'
+    star = 'star'
+    triangle = 'triangle'
+
+
+class CubicInterpolationMode(Enum):
+    default = "default"
+    monotone = "monotone"
+
+
+class LineJoinStyle(Enum):
+    bevel = "bevel"
+    roundo = "round"
+    miter = "miter"
+
+
+class BorderCapStyle(Enum):
+    butt = "butt"
+    roundo = "round"
+    square = "square"
 
 
 class TextAlign(Enum):
@@ -127,6 +157,49 @@ def get_basecfg():
     _base.options.plugins.legend.rtl = AttrMeta(
         False, bool, bool, uiorgCat.simplemore, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
 
+    # ========================== end legend ==========================
+
+    # ========================= legend.labels ========================
+
+    _base.options.plugins.legend.labels.boxWidth = AttrMeta(
+        40, int, int, uiorgCat.simple, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+    _base.options.plugins.legend.labels.boxHeight = AttrMeta(
+        12, int, int, uiorgCat.simple, True,  [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+    _base.options.plugins.legend.labels.color = AttrMeta(
+        twt.blue/5, Color, Color, uiorgCat.simple, False, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    # TODO: labels.fond
+
+    _base.options.plugins.legend.labels.padding = AttrMeta(
+        40, int, int, uiorgCat.simple, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    # TODO: filter, sort
+    _base.options.plugins.legend.labels.pointStyle = AttrMeta(PointStyle.circle,   PointStyle, PointStyle, uiorgCat.simplemore, True, [
+                                                              ('/options/plugins/legend/labels/usePointStyle', True), ('/options/plugins/legend/labels/usePointStyle', False)])
+
+    _base.options.plugins.legend.labels.textAlign = AttrMeta(
+        TextAlign.center, TextAlign, TextAlign, uiorgCat.simple, False, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    _base.options.plugins.legend.labels.usePointStyle = AttrMeta(
+        False, bool, bool, uiorgCat.simplemore, True, [('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    # ======================= end legend.labels ======================
+
+    # ========================= legend.title =========================
+    _base.options.plugins.legend.title.display = AttrMeta(True, bool, bool, uiorgCat.simplemore, True, [
+        ('/options/plugins/legend/display', True), ('/options/plugins/legend/display', False)])
+
+    # _base.options.plugins.legend.title.color = AttrMeta(
+    #     twt.blue/5, Color, Color, uiorgCat.simple, True, [('/options/plugins/legend/title/display', True), ('/options/plugins/legend/title/display', False)])
+    # # TODO:font
+    # _base.options.plugins.legend.title.paddding = AttrMeta(
+    #     0, int, int, uiorgCat.simple, True,  [('/options/plugins/legend/title/display', True), ('/options/plugins/legend/title/display', False)])
+
+    # _base.options.plugins.legend.title.text = AttrMeta(
+    #     "legend_title", str, str, uiorgCat.simple, False, [('/options/plugins/legend/title/display', True), ('/options/plugins/legend/title/display', False)])
+
+    # ======================= end legend.title =======================
+
     _base.options.plugins.title.display = AttrMeta(
         False, bool, bool, uiorgCat.simple, True, all_context)
     _base.options.plugins.title.text = AttrMeta(
@@ -138,62 +211,90 @@ def get_basecfg():
     _base.options.plugins.title.fullSize = AttrMeta(
         False, bool, bool, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
 
-    _base.options.plugins.title.position = AttrMeta(
+    _base.options.plugins.title.position=AttrMeta(
         Position.top, Position, Position, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
 
-    _base.options.plugins.title.padding = AttrMeta(
+    _base.options.plugins.title.padding=AttrMeta(
         10, int, int, uiorgCat.simple, False, [('/options/plugins/title/display', True), ('/options/plugins/title/display', False)])
 
-    _base.options.plugins.subtitle.display = AttrMeta(
+    _base.options.plugins.subtitle.display=AttrMeta(
         False, bool, bool, uiorgCat.simple, True, all_context)
-    _base.options.plugins.subtitle.text = AttrMeta(
+    _base.options.plugins.subtitle.text=AttrMeta(
         "plot_subtitle", str, str, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
-    _base.options.plugins.subtitle.align = AttrMeta(
+    _base.options.plugins.subtitle.align=AttrMeta(
         TextAlign.center, TextAlign, TextAlign, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
-    _base.options.plugins.subtitle.color = AttrMeta(
+    _base.options.plugins.subtitle.color=AttrMeta(
         twt.blue/5, Color, Color, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
-    _base.options.plugins.subtitle.fullSize = AttrMeta(
+    _base.options.plugins.subtitle.fullSize=AttrMeta(
         False, bool, bool, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
 
-    _base.options.plugins.subtitle.position = AttrMeta(
+    _base.options.plugins.subtitle.position=AttrMeta(
         Position.top, Position, Position, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
 
-    _base.options.plugins.subtitle.padding = AttrMeta(
+    _base.options.plugins.subtitle.padding=AttrMeta(
         10, int, int, uiorgCat.simple, False, [('/options/plugins/subtitle/display', True), ('/options/plugins/subtitle/display', False)])
 
     # ========================= elements/line ========================
 
-    #TODO: bug in addict
-    #_base.options.elements = Dict(track_changes=True)
-    #_ = _base.options.elements.line = Dict(track_changes=True)
+    # TODO: bug in addict
+    # _base.options.elements = Dict(track_changes=True)
+    # _ = _base.options.elements.line = Dict(track_changes=True)
     # _.tension = AttrMeta(0, float, [0, 1], uiorgCat.advanced, True, [
     # ('/type', 'line')])
-    _base.options.elements.line.tension = AttrMeta(0, float, [0, 1], uiorgCat.advanced, True, [
+    _base.options.elements.line.tension=AttrMeta(0, float, [0, 1], uiorgCat.advanced, True, [
         ('/type', 'line')])
-    _ = _base.options.elements.line
-    _.backgroundColor = AttrMeta(
+    _=_base.options.elements.line
+    _.backgroundColor=AttrMeta(
         twt.gray/1, Color, Color, uiorgCat.simple, True, [('/type', 'line')])
-    _.borderWidth = AttrMeta(
+    _.borderWidth=AttrMeta(
         2, int, [0, 5], uiorgCat.simple, True, [('/type', 'line')])
-    _.borderColor = AttrMeta(
+    _.borderColor=AttrMeta(
         twt.gray/2, Color, Color, uiorgCat.simple,  True, [('/type', 'line')])
     _.borderCapStyle = AttrMeta(
-        "butt", None, None, uiorgCat.TBD, False, [('/type', 'line')])
+        BorderCapStyle.butt, BorderCapStyle, BorderCapStyle, uiorgCat.nitpick, True, [('/type', 'line')])
+
+    # TODO: handle this later; require idea of segment
+    #     segments
+    # An Array of numbers that specify distances to alternately draw a line and a gap (in coordinate space units). If the number of elements in the array is odd, the elements of the array get copied and concatenated. For example, [5, 15, 25] will become [5, 15, 25, 5, 15, 25]. If the array is empty, the line dash list is cleared and line strokes return to being solid.
     _.borderDash = AttrMeta([], None, None, uiorgCat.TBD,
                             False, [('/type', 'line')])
     _.borderDashOffset = AttrMeta(
-        0.0, None, None, uiorgCat.TBD, False, [('/type', 'line')])
+        0.0, float, float, uiorgCat.nitpick, True, [('/type', 'line')])
     _.borderJoinStyle = AttrMeta(
-        "miter", None, None, uiorgCat.TBD, False, [('/type', 'line')])
+        LineJoinStyle.miter, LineJoinStyle, LineJoinStyle, uiorgCat.nitpick, True, [('/type', 'line')])
     _.capBezierPoints = AttrMeta(
         True, bool, bool, uiorgCat.advanced, False, [('/type', 'line')])
     _.cubicInterpolationMode = AttrMeta(
-        "default", None, None, uiorgCat.TBD, False, [('/type', 'line')])
+        CubicInterpolationMode.default, CubicInterpolationMode, CubicInterpolationMode, uiorgCat.advanced, True, [('/type', 'line')])
     _.fill = AttrMeta(None, None, None, uiorgCat.TBD,
-                      False, [('/type', 'line')])
-    _.stepped = AttrMeta(None, None, None, uiorgCat.TBD,
+                      False, [('/type', 'line')])  # TODO: bool/string
+    _.stepped = AttrMeta(False, bool, bool, uiorgCat.simplemore,
                          False, [('/type', 'line')])
     # ============================ end elements/line===========================
+    _base.options.elements.point.radius = AttrMeta(3, int, [0, 5], uiorgCat.simplemore, True, [(
+        '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
+    _base.options.elements.point.pointStyle = AttrMeta(PointStyle.circle,   PointStyle, PointStyle, uiorgCat.simplemore, True, [(
+        '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
+    _base.options.elements.point.rotation = AttrMeta(0, int, int, uiorgCat.advanced, True,  [(
+        '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
+    _base.options.elements.point.backgroundColor = AttrMeta(
+        twt.gray/1, Color, Color, uiorgCat.simple, False, [(
+            '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
+    _base.options.elements.point.borderWidth = AttrMeta(1, int, [0, 5], uiorgCat.simplemore, True, [(
+        '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
+    _base.options.elements.point.borderColor = AttrMeta(
+        twt.gray/4, Color, Color, uiorgCat.simple, False, [(
+            '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
+    _base.options.elements.point.hitRadius = AttrMeta(1, int, [0, 5], uiorgCat.nitpick, True, [(
+        '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
+    _base.options.elements.point.hoverRadius = AttrMeta(4, int, [0, 5], uiorgCat.nitpick, True, [(
+        '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
+    _base.options.elements.point.hoverBorderWidth = AttrMeta(1, int, [0, 5], uiorgCat.nitpick, True, [(
+        '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
+
+    # ==================== options.elements.points ===================
+
+    # ============================== end =============================
 
     _xAxis = _base.options.scales.xAxis
     # _xAxis.grid = Dict()  # TBD
@@ -225,7 +326,7 @@ def get_defaultVal(attrmeta):  # TODO: ask SO if there is a better way to
         case "<aenum 'FalseDict'>":
             return cam.default
 
-        case "<aenum 'Position'>" | "<aenum 'PlotType'>" | "<aenum 'TextAlign'>":
+        case "<aenum 'Position'>" | "<aenum 'PlotType'>" | "<aenum 'TextAlign'>" | "<aenum 'PointStyle'>" | "<aenum 'CubicInterpolationMode'>" | "<aenum 'BorderJoinStyle'>" | "<aenum 'BorderCapStyle'>" | "<aenum 'LineJoinStyle'>":
             return cam.default.value
 
         case "<aenum 'Color'>":
@@ -255,15 +356,13 @@ def is_visible(attrmeta):
 
 
 def attrmeta_in_context(ctx, cfgattrmeta):
+    cfgattrmeta.freeze()
     for kpath, attrmeta in filter(lambda _: is_visible(_[1]),
                                   dictWalker(cfgattrmeta)
                                   ):
-        if 'title' in kpath:
-            logger.debug(f"ctxmp {attrmeta.context} {ctx}")
-
         if ctx in attrmeta.context:
             yield kpath
-
+    cfgattrmeta.unfreeze()
     pass
 
 
@@ -295,7 +394,7 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
                     cfgattrmeta, f"/options/scales/xAxis/grid/{_}", True)
         case("/options/parsing/value", True):
             # TODO: make it more generic by using FalseDict type
-            #parsing_metaval = cfgattrmeta.options.parsing.value
+            # parsing_metaval = cfgattrmeta.options.parsing.value
             # for k, v in parsing_metaval.vrange.items():
             #    logger.debug(f"adding /options/parsing/{k} to cfgattrmeta")
             #    attradd(cfgattrmeta, f"/options/parsing/{k}", v)
