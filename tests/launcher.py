@@ -19,6 +19,8 @@ if sys:
 
 from chartjs_customizer.wp_initialSetup import wp_initialSetup
 from chartjs_customizer.wp_chartjs_customizer import wp_chartjs_customizer
+
+from chartjs_customizer.wp_tryoutScales import wp_tryoutScales
 if os:
     from tracker import _hcs, refBoard
 
@@ -38,9 +40,9 @@ from addict import Dict
 
 # wp.update_ui_component()
 # page_ready(wp, None)
-app = jp.app
+#app = jp.app
 #jp.justpy(wp_initialSetup, start_server=False)
-jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
+#jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 
 #wp = wp_chartjs_customizer(None)
 # _hcs['/type'].target.selector.value = 'line'  # mimic key press
@@ -51,3 +53,6 @@ jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 # msg.value = True
 
 # wp.update_ui_component(dbref, msg)
+
+
+wp = wp_tryoutScales(None)
