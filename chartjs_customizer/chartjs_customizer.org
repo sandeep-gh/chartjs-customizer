@@ -1,4 +1,159 @@
+* Dealing with Axes
+** example 1
+const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        datasets: [{
+            data: [20, 50, 100, 75, 25, 0],
+            label: 'Left dataset',
+
+            // This binds the dataset to the left y axis
+            yAxisID: 'left-y-axis'
+        }, {
+            data: [0.1, 0.5, 1.0, 2.0, 1.5, 0],
+            label: 'Right dataset',
+
+            // This binds the dataset to the right y axis
+            yAxisID: 'right-y-axis'
+        }],
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+    },
+    options: {
+        scales: {
+            'left-y-axis': {
+                type: 'linear',
+                position: 'left'
+            },
+            'right-y-axis': {
+                type: 'linear',
+                position: 'right'
+            }
+        }
+    }
+});
+
+
+
+** example 2
+options: {
+  scales: {
+    xAxes: [{
+      id: 'x',
+      type: 'time',
+      display: true,
+      title: {
+        display: true,
+        text: 'Date'
+      },
+      ticks: {
+        major: {
+          enabled: true
+        },
+        font: function(context) {
+          if (context.tick && context.tick.major) {
+            return {
+              weight: 'bold',
+              color: '#FF0000'
+            };
+          }
+        }
+      }
+    }],
+    yAxes: [{
+      id: 'y',
+      display: true,
+      title: {
+        display: true,
+        text: 'value'
+      }
+    }]
+  }
+}
+
+** another
+var canvas = document.getElementById('chart');
+new Chart(canvas, {
+  type: 'line',
+  data: {
+    labels: ['1', '2', '3', '4', '5'],
+    datasets: [{
+      label: 'A',
+      yAxisID: 'A',
+      data: [100, 96, 84, 76, 69]
+    }, {
+      label: 'B',
+      yAxisID: 'B',
+      data: [1, 1, 1, 1, 0]
+    }]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        id: 'A',
+        type: 'linear',
+        position: 'left',
+      }, {
+        id: 'B',
+        type: 'linear',
+        position: 'right',
+        ticks: {
+          max: 1,
+          min: 0
+        }
+      }]
+    }
+  }
+});
+
+
+** multiple chart axis
+const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        datasets: [{
+            data: [20, 50, 100, 75, 25, 0],
+            label: 'Left dataset',
+
+            // This binds the dataset to the left y axis
+            yAxisID: 'left-y-axis'
+        }, {
+            data: [0.1, 0.5, 1.0, 2.0, 1.5, 0],
+            label: 'Right dataset',
+
+            // This binds the dataset to the right y axis
+            yAxisID: 'right-y-axis'
+        }],
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+    },
+    options: {
+        scales: {
+            'left-y-axis': {
+                type: 'linear',
+                position: 'left'
+            },
+            'right-y-axis': {
+                type: 'linear',
+                position: 'right'
+            }
+        }
+    }
+});
+
+
+
 * TODOs
+** ability to configure each line:
+
+select dataset: 0 1 2 3 5
+line config panel
+
+update data.datasets[0]
+
+would have to done separately
+
+
+
+
 ** why is add_cfg.plugins.tooltips gets called twice
 
 

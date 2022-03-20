@@ -264,6 +264,7 @@ def get_basecfg():
                 XAxis.Grid = Grid
             XAxis()
             Scales.XAxis = XAxis
+            Scales.ChildNodeOptions = [XAxis]
         Scales()
         Options.Scales = Scales
     Options()
