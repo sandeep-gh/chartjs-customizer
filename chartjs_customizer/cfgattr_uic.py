@@ -14,6 +14,15 @@ import traceback
 from . import attrmeta
 
 
+def on_plotType_select(dbref, msg):
+    '''
+    plotType is special; scale configuration panel is updated on change in plot type
+    '''
+
+    msg.page.update_scale_configurator(dbref, msg)
+    msg.page.update_ui_component(dbref, msg)  # in case there are other changes
+
+
 def reactor(dbref, msg):
     msg.page.update_ui_component(dbref, msg)
 
@@ -97,7 +106,7 @@ def build_uic(key, label, attrMeta):
 
             )
 
-        case "<aenum 'Position'>" | "<aenum 'PlotType'>" | "<aenum 'TextAlign'>" | "<aenum 'PointStyle'>" | "<aenum 'cubicInterpolationMode'>" | "<aenum 'LineJoinStyle'>":
+        case "<aenum 'Position'>" | "<aenum 'TextAlign'>" | "<aenum 'PointStyle'>" | "<aenum 'cubicInterpolationMode'>" | "<aenum 'LineJoinStyle'>":
             return wf.Wrapdiv_(
                 wf.SelectorWBanner_(key, label,
                                     options=[
@@ -110,6 +119,24 @@ def build_uic(key, label, attrMeta):
                                     on_select=update_chart, pcp=pcp
                                     )
             )
+
+        # by design we don't allow plottype change to be interactive;plottype has to selected initially as is fixed
+        # for rest of the lifecycle
+        case  "<aenum 'PlotType'>":
+            print("build plottype")
+            return wf.Wrapdiv_(
+                wf.SelectorWBanner_(key, label,
+                                    options=[
+                                        _.value for _ in attrMeta.vtype],
+                                    values=[
+                                        _.value for _ in attrMeta.vtype],
+                                    default_idx=[
+                                        _.value for _ in attrMeta.vtype].index(attrMeta.default.value),
+
+                                    on_select=on_plotType_select, pcp=pcp
+                                    )
+            )
+
     logger.debug(f"Not building ui for:  {key}")
     return None
 

@@ -191,12 +191,14 @@ def OptionsElementsPoint(_cfg):
         '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
 
 
-def get_basecfg():
+def get_basecfg(choices):
     """generate canonical attrmeta
+    choices defines user choices made in  initial setup 
+    -- mostly for scales
     """
 
     _base = cfgAttrMeta_base = Dict(track_changes=True)
-    _base.type = AttrMeta(PlotType.Undef, PlotType,
+    _base.type = AttrMeta(choices.plottype, PlotType,
                           PlotType, uiorgCat.initial, True, all_context)
 
     def Options():
@@ -254,48 +256,64 @@ def get_basecfg():
 
         def Scales():
             scales = options.scales
+            #scales.choices = []
 
             def XAxis():
-                xAxis = scales.xAxis
+                xAxis = scales.choices.xAxis
 
                 def Grid():
                     grid = xAxis.grid
                     OptionsScalesXAxisGrid(grid)
                 XAxis.Grid = Grid
             XAxis()
-            Scales.XAxis = XAxis
-            Scales.ChildNodeOptions = [XAxis]
+            Scales.Choices = Dict()
+            Scales.Choices.XAxis = XAxis
+
         Scales()
         Options.Scales = Scales
     Options()
-    Options.Plugins.Title()
-    Options.Plugins.Subtitle()
-    Options.Elements.Point()
-    Options.Elements.Line()
-    Options.Scales.XAxis.Grid()
+    # Options.Plugins.Title()
+    # Options.Plugins.Subtitle()
+    # Options.Elements.Point()
+    # Options.Elements.Line()
+    match choices.plottype:
+        case 'line':
+            match choices.line.xscale:
+                case 'x':
+                    print("using default x axes")
+                    Options.Scales.Choices.XAxis.Grid()
+                case 'xaxes':
+                    print("multiple xaxes..edit cfgattrmeta")
+                    pass
+            pass
+        case  'bar':
+            pass
 
-    _base.options.responsive = AttrMeta(
-        True, bool, bool, uiorgCat.perf, True, all_context)
-    _base.options.aspectRatio = AttrMeta(
-        2, int, [1, 4], uiorgCat.advanced, True, all_context)
-    _base.options.resizeDelay = AttrMeta(
-        4, int, [1, 9], uiorgCat.perf, True, all_context)
-    _base.options.devicePixelRatio = AttrMeta(
-        1, int, [1, 5], uiorgCat.advanced, True, all_context)
+        case 'radial':
+            pass
 
-    _base.options.parsing.value = AttrMeta(False, FalseDict,
-                                           Dict({'x': AttrMeta('x', str, str, uiorgCat.initial,
-                                                               False, [('/options/parsing/', True)]),
-                                                 'y': AttrMeta('y', str, str,  uiorgCat.initial, False, [('/options/parsing/', True)]),
-                                                 'id': AttrMeta('id', str, str, uiorgCat.initial, False, [('/options/parsing/', True)])
-                                                 }), uiorgCat.TBD, True, all_context)
+    # _base.options.responsive = AttrMeta(
+    #     True, bool, bool, uiorgCat.perf, True, all_context)
+    # _base.options.aspectRatio = AttrMeta(
+    #     2, int, [1, 4], uiorgCat.advanced, True, all_context)
+    # _base.options.resizeDelay = AttrMeta(
+    #     4, int, [1, 9], uiorgCat.perf, True, all_context)
+    # _base.options.devicePixelRatio = AttrMeta(
+    #     1, int, [1, 5], uiorgCat.advanced, True, all_context)
 
-    _base.options.parsing.x = AttrMeta(
-        'x', str, str, uiorgCat.TBD, False, [('options/parsing', True)])  # active only if /options/parsing is True
-    _base.options.parsing.y = AttrMeta(
-        'y', str, str, uiorgCat.TBD, False, [('options/parsing', True)])
-    _base.options.parsing.id = AttrMeta('id', str, str, uiorgCat.TBD, False, [
-        ('options/parsing', 'True')])
+    # _base.options.parsing.value = AttrMeta(False, FalseDict,
+    #                                        Dict({'x': AttrMeta('x', str, str, uiorgCat.initial,
+    #                                                            False, [('/options/parsing/', True)]),
+    #                                              'y': AttrMeta('y', str, str,  uiorgCat.initial, False, [('/options/parsing/', True)]),
+    #                                              'id': AttrMeta('id', str, str, uiorgCat.initial, False, [('/options/parsing/', True)])
+    #                                              }), uiorgCat.TBD, True, all_context)
+
+    # _base.options.parsing.x = AttrMeta(
+    #     'x', str, str, uiorgCat.TBD, False, [('options/parsing', True)])  # active only if /options/parsing is True
+    # _base.options.parsing.y = AttrMeta(
+    #     'y', str, str, uiorgCat.TBD, False, [('options/parsing', True)])
+    # _base.options.parsing.id = AttrMeta('id', str, str, uiorgCat.TBD, False, [
+    #     ('options/parsing', 'True')])
 
     return _base
 

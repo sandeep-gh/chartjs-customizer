@@ -110,3 +110,8 @@ def register(func):
         return hcgen
 
     return stubGen_wrapper
+
+
+# def tag2path(*args):
+#     print("in tag2path ", _currSpath, " ", _currTracker)
+#     print("in tag2path ", _hcs.keys())

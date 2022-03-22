@@ -29,7 +29,7 @@ from addict import Dict
 
 #wp = launcher(None)
 # wp = wp_initialSetup(None)
-# _hcs['/type'].target.selector.value = 'line'  # mimic key press
+
 
 # _hcs['/options/parsing/value'].target.value = True
 
@@ -40,7 +40,7 @@ from addict import Dict
 
 # wp.update_ui_component()
 # page_ready(wp, None)
-#app = jp.app
+app = jp.app
 #jp.justpy(wp_initialSetup, start_server=False)
 #jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 
@@ -55,4 +55,8 @@ from addict import Dict
 # wp.update_ui_component(dbref, msg)
 
 
-wp = wp_tryoutScales(None)
+#wp = wp_tryoutScales(None)
+jp.justpy(wp_tryoutScales, host="192.168.0.183", start_server=False)
+# _hcs['/type'].target.selector.value = 'line'  # mimic key press
+# wp.update_ui_component()
+#wp.update_scale_configurator(_hcs['/type'].target, None)

@@ -168,7 +168,7 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
             attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", False)
         case("/type", PlotType.Line | 'line'):  # value in justpy is never a python objet
             # TODO: also disable any
-            attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", True)
+            #attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", True)
             for dpath in attrmeta_in_context(('/type', 'line'), cfgattrmeta):
                 # update all things in the ('/type', 'line') context
                 attrupdate(cfgattrmeta, dpath, True)

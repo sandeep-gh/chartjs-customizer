@@ -21,7 +21,7 @@ import justpy as jp
 
 import webapp_framework as wf
 #from .attrmeta import get_basecfg, uiorgCat
-from .attrmeta_basecfg_helper import uiorgCat
+from .attrmeta_basecfg_helper import uiorgCat, PlotType
 from .attrmeta_basecfg_orig import get_basecfg
 from .chartcfg import (add_dataset, build_pltcfg, update_cfgattrmeta,
                        update_chartCfg)
@@ -42,9 +42,13 @@ def page_ready(self, msg):
 
 # ========================== init cjs_cfg =========================
 # chartjs configuration as nested-addict-AttrMeta
-cfgAttrMeta = get_basecfg()
+choices = Dict()
+choices.plottype = PlotType.Line
+choices.line.xscale = 'x'
+cfgAttrMeta = get_basecfg(choices)
 
 # cjs_cfg: Json version of cfgAttrMeta -- will come from session_dict
+
 cjs_cfg = Dict(track_changes=True)
 update_chartCfg(cfgAttrMeta, cjs_cfg)
 cfgAttrMeta.clear_changed_history()
