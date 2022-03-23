@@ -1,10 +1,18 @@
 import functools
-from addict import Dict
-import jsbeautifier
-import logging
 import json
+import logging
+import os
+import traceback
+import typing
+from itertools import tee
+from typing import get_type_hints
 
+import jsbeautifier
+
+from addict import Dict
 from webapp_framework_tracking.dbrefBoard import register as dbrefBoard_register
+
+
 logger = logging.getLogger(__name__)
 
 _hcs = Dict()
@@ -83,7 +91,7 @@ def hcGen_register(func):
         """
         wrapper for _f/generator function in htmlcomponents
         """
-        if args and args[0] == None:  # skip the _f(None, None) call
+        if args and args[0] == None:  # skip the _f(None) call
             return func(*args, **kwargs)
 
         hcref = func(
@@ -104,6 +112,35 @@ def register(func):
     """
     @functools.wraps(func)
     def stubGen_wrapper(*args, **kwargs):
+
+        if 'DEBUG_WEBAPP' in os.environ:
+
+            type_hints = get_type_hints(func)
+            if "content_" in type_hints:  # this function takes a stub as argument
+                for argname, argval in zip(type_hints.keys(), args):
+                    if argname == 'content_':
+                        if isinstance(argval, Dict):
+                            print(
+                                "aha -- got dict instead of stub; you mistyped fatso")
+                            print(traceback.format_exc())
+                            raise ValueError("Got empty dict instead of stub")
+
+            if 'cgens' in kwargs:
+                cgens = kwargs.pop('cgens')
+                if isinstance(cgens, typing.List):
+                    cgens_c = cgens
+
+                else:
+                    cgens, cgens_c = tee(cgens)
+
+                for cgen in cgens_c:
+                    if isinstance(cgen, Dict):
+                        print(
+                            "aha -- got dict instead of stub; you mistyped fatso finger")
+                        print(traceback.format_exc())
+                        raise ValueError("Got empty dict instead of stub")
+
+                kwargs['cgens'] = cgens
         hcgen = func(*args, **kwargs)
         _currTracker[hcgen.key] = hcgen
         hcgen.spath = _currSpath + hcgen.key

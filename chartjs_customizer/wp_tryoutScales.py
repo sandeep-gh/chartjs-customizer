@@ -38,13 +38,9 @@ def on_page_ready(self, msg):
 @jp.SetRoute('/initialSetup')
 def wp_tryoutScales(request):
     wp = wf.WebPage_("wp_index",
-                     page_type='quasar'
+                     page_type='quasar', cgens=[stubStore.topPanel, stubStore.scalesCtx.deck, stubStore.scalesCtx.lineCtx.xy]
                      )()
-    stubStore.topPanel(wp, "")  # render all of the ui components
-    stubStore.scalesCtx.deck(wp, "")
-    stubStore.scalesCtx.lineCtx.xy(wp, "")
 
-    print(stubStore.scalesCtx)
     cjs_cfg = Dict(track_changes=True)
     update_chartCfg(cfgAttrMeta, cjs_cfg)
     # ignore cjs_cfg changes coming from previous statement
