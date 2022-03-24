@@ -38,7 +38,10 @@ def on_page_ready(self, msg):
 @jp.SetRoute('/initialSetup')
 def wp_tryoutScales(request):
     wp = wf.WebPage_("wp_index",
-                     page_type='quasar', cgens=[stubStore.topPanel, stubStore.scalesCtx.deck, stubStore.scalesCtx.lineCtx.xy]
+                     page_type='quasar', cgens=[stubStore.topPanel,
+                                                stubStore._scales._plottype.deck,
+                                                stubStore._scales._lineplot.panel,
+                                                stubStore._scales.scalesNoticeboard]
                      )()
 
     cjs_cfg = Dict(track_changes=True)

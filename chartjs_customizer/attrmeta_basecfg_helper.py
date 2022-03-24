@@ -73,6 +73,15 @@ class TextAlign(Enum):
     end = "end"
 
 
+class CartesianAxesType(Enum):
+    linear = "linear"
+    logarithmic = "logarithmic"
+    category = "category"
+    time = "time"
+    timeseries = "timeseries"
+#
+
+
 class Color(Enum):
     pass
 
