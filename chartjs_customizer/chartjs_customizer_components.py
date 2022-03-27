@@ -20,16 +20,15 @@ tier1_level_group = {"options/elements": ["line", "point"],
                      "data": []}
 
 
-def pltcanvas_(chartcfg: Dict)
-   with wf.uictx("pltctx") as _ctx:
+def pltcanvas_(chartcfg: Dict):
+    with wf.uictx("pltctx") as _ctx:
         cjs_plt_cfg = build_pltcfg(chartcfg)  # build chartjs compatible cfg
         pltcanvas_ = cj.ChartJS_(
             "pltcanvas", pcp=[], options=cjs_plt_cfg)  # build the chart
         _ctx.pltcanvas = pltcanvas_  # TODO: auto track canvas
-    logger.debug("Building cfggroup_panel...")
 
 
-def build_panel_(grouptag: str,   cfgattrmeta: Dict):
+def build_uiorg_panel_(grouptag: str,   cfgattrmeta: Dict):
     """Builds a panel containing ui elements for cfg items  belonging
     to grouptag.
     ui_elemts are stacked in grid/auto-flow.  
@@ -68,78 +67,52 @@ def build_panel_(grouptag: str,   cfgattrmeta: Dict):
                 res = len([True for _ in tier1keys if _ in kpath])
                 if tier1key is None:
                     if res == 0:
+                        logger.debug(f"{kpath} belongs to {t1key}/{tier1key}")
                         return True
                     else:
                         return False  # kpath belongs to subcategory
                 else:
                     if res > 0:
+                        logger.debug(f"{kpath} belongs to {t1key}/{tier1key}")
                         return True
                     else:
                         return False
 
         yield from filter(lambda _: is_in_subgroup(_[0]), cfggroup_iter())
 
-
-    def build_tl_panel(tlkey, subkey=None):
+    def build_ui_panel(tlkey, subkey=None):
         return wf.StackW_(tlkey, num_cols=2,
-                   cgens=build_uic_iter(subgroup_iter(
-                       tlkey, subkey),  # all cfgattr that come under options but not under elements or scales
-                                        )
-                   )
+                          cgens=build_uic_iter(subgroup_iter(
+                              tlkey, subkey),  # all cfgattr that come under options but not under elements or scales
+                          )
+                          )
 
     top_level_ui = Dict([(_, buil_tl_panel(_)) for _ in top_level_group])
-    # top_level_ui = {"options":
-    #                 wf.StackW_("options", num_cols=2,
-    #                            cgens=build_uic_iter(subgroup_iter(
-    #                                "options", None),  # all cfgattr that come under options but not under elements or scales
-    #                            )
-    #                            )
-    #                 }
-
     tier1_level_ui = Dict()
     for tlkey in top_level_group():
         for subkey in tier1_level_group[tlkey]:
-            subpanel_  = wf.Subsection_(f"{tlkey}_{subkey}",  f"{tlkey}/{subkey}", build_ui_panel(tlkey, subkey))
-            tier1_level_ui[tlkey][subkey]  = subpanel_
-    
-
-
-    # for key in top_level_group:
-    #     for kk in tier1_level_group[key]:
-    #         logger.debug(f"panel for group {key}/{kk}")
-    #         kk_panel = wf.Subsection_(f"{key}_{kk}", f"{key}/{kk}",
-    #                                   wf.StackW_(f"{key}/{kk}",
-    #                                              cgens=build_uic_iter(
-    #                                                  subgroup_iter(
-    #                                                      f"{key}", f"{kk}")
-    #                                              )
-    #                                              )
-    #                                   )
-    #         tier1_level_ui[key][kk] = kk_panel
+            subpanel_ = wf.Subsection_(
+                f"{tlkey}_{subkey}",  f"{tlkey}/{subkey}", build_ui_panel(tlkey, subkey))
+            tier1_level_ui[tlkey][subkey] = subpanel_
 
     def cfgblks_iter():
-        for k, v in top_level_ui.items():
-            wf.StackV_("content", cgens=[v, wf.StackV_("subgroup", cgens=tier1_level_ui[key].values())]
-                       )  # all the attr-uic for top level group k
-            yield wf.Section_("panel", wf.HeadingBanner_(k, k), _ctx.content)
+        for tlkey, tlui in top_level_ui.items():
+            content_ = wf.StackV_(f"{tlkey}content", cgens=[tlui, wf.StackV_("subgroup", cgens=tier1_level_ui[tlkey].values())]
+                                  )  # all the attr-uic for top level group k
+            yield wf.Section_(f"{tlkey}panel", wf.HeadingBanner_(tlkey, tlkey),  content_)
 
-            # yield v
+    return cfgblks_iter()
 
-    # ============================ end ===========================
-    with wf.uictx(f"uiorg_{grouptag.value}") as _ctx:
-        wfx.Noticebord_("noticeboard")
-        # wf.StackV_("cfgpanel", cgens=cfgblks_iter())
 
-        @ wf.MRVWLR
-        def on_submit_click(dbref, msg):
-            rts = wf.TaskStack()
-            rts.addTask(wf.ReactTag_UI.UpdateChart, None)
-            return msg.page, rts
-        submit_ = wf.Wrapdiv_(wf.Button_(
-            "Submit",  "Submit", "Config Chart", on_submit_click))
-        return cfgblks_iter(), submit_
+def build_uigroup_panel_(grouptag: str,  chartcfg: Dict,  cfgattrmeta: Dict):
 
-def build_top_panel()
-
-wf.StackV_('topPanel',  cgens=chain.from_iterable([[pltcanvas_], cfgblks_iter(), [submit_]]),
-           )        
+    @ wf.MRVWLR
+    def on_submit_click(dbref, msg):
+        rts = wf.TaskStack()
+        rts.addTask(wf.ReactTag_UI.UpdateChart, None)
+        return msg.page, rts
+    submit_ = wf.Wrapdiv_(wf.Button_())
+    return wf.StackV_('topPanel',
+                      cgens=chain.from_iterable(
+                          [[pltcanvas_(chartcfg)], build_uigroup_panel_(grouptag, cfgattrmeta), [submit_]])
+                      )
