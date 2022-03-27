@@ -45,6 +45,13 @@ def page_ready(self, msg):
 choices = Dict()
 choices.plottype = PlotType.Line
 choices.line.xscale = 'x'
+choices = Dict()
+choices.plottype = PlotType.Line
+
+# default for line
+choices.scales.xaxes = 'x'
+choices.scales.yaxes = 'y'
+
 cfgAttrMeta = get_basecfg(choices)
 
 # cjs_cfg: Json version of cfgAttrMeta -- will come from session_dict

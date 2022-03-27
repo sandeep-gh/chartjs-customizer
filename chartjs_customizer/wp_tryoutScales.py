@@ -41,7 +41,7 @@ def wp_tryoutScales(request):
                      page_type='quasar', cgens=[stubStore.topPanel,
                                                 stubStore._scales._plottype.deck,
                                                 stubStore._scales._lineplot.panel,
-                                                stubStore._scales.scalesNoticeboard]
+                                                stubStore._scales.scalesNoticeBoard]
                      )()
 
     cjs_cfg = Dict(track_changes=True)

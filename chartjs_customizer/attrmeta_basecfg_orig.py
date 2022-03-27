@@ -117,9 +117,9 @@ def OptionsPluginsLegendTitle(_cfg):
         "legend_title", str, str, uiorgCat.simple, False, [('/options/plugins/legend/title/display', True), ('/options/plugins/legend/title/display', False)])
 
 
-def OptionsScalesXAxisGrid(_cfg):
+def OptionsScalesAxesGrid(_cfg):
     _cfg.display = AttrMeta(
-        False, bool, bool, uiorgCat.simple, True, [('/type', 'line')])
+        False, bool, bool, uiorgCat.simple, True, [('/type', 'line')])  # TODO: this condition will change
     _cfg.color = AttrMeta(
         twt.gray/1, Color, Color, uiorgCat.simple, False, [('/options/scales/xAxis/grid/display', 'line')])
     _cfg.borderColor = AttrMeta(
@@ -191,6 +191,16 @@ def OptionsElementsPoint(_cfg):
         '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
 
 
+def add_axes_cfgattributes(_axes):
+    """
+    _axes: is an axes element. add axes attributes like grid etc. 
+    """
+
+    # TODO: add other properties as well
+    _axes.grid = Dict(track_changes=True)
+    OptionsScalesAxesGrid(_axes.grid)
+
+
 def get_basecfg(choices):
     """generate canonical attrmeta
     choices defines user choices made in  initial setup 
@@ -202,40 +212,45 @@ def get_basecfg(choices):
                           PlotType, uiorgCat.initial, True, all_context)
 
     def Options():
-        options = _base.options
+        options = _base.options = Dict(track_changes=True)
+        print("post options addition ", _base)
 
         def Elements():
-            elements = options.elements
+            elements = options.elements = Dict(track_changes=True)
 
-            def Line():
-                linecfg = elements.line
+            def Line():  # called if selected in choice
+                linecfg = elements.line = Dict(track_changes=True)
                 OptionsElementsLineCfg(linecfg)
             Elements.Line = Line
 
             def Point():
-                point = elements.point
+                point = elements.point = Dict(track_changes=True)
                 OptionsElementsPoint(point)
             Elements.Point = Point
-
+            # choose elements based on plot type
+            match choices.plottype:
+                case 'line' | PlotType.Line:
+                    Elements.Line()
+                    Elements.Point()
         Elements()
         Options.Elements = Elements
 
         def Plugins():
-            plugins = options.plugins
+            plugins = options.plugins = Dict(track_changes=True)
 
             def Title():
-                title = plugins.title
+                title = plugins.title = Dict(track_changes=True)
                 OptionsPluginsTitle(title)
             Plugins.Title = Title
 
             def Subtitle():
-                subtitle = plugins.subtitle
+                subtitle = plugins.subtitle = Dict(track_changes=True)
                 OptionsPluginsSubtitle(subtitle)
 
             Plugins.Subtitle = Subtitle
 
             def Legend():
-                legend = plugins.legend
+                legend = plugins.legend = Dict(track_changes=True)
                 OptionsPluginsLegend(legend)
                 legendtitle = legend.title
                 OptionsPluginsLegendTitle(legendtitle)
@@ -251,24 +266,28 @@ def get_basecfg(choices):
                 print("will deal with later")
                 pass
             Plugins.Tooltips = Tooltips
+            # all charts will have these
+            Title()
+            Subtitle()
+            Legend()
+            # Tooltips()  # open up later
         Plugins()
         Options.Plugins = Plugins
 
         def Scales():
-            scales = options.scales
+            scales = options.scales = Dict(track_changes=True)
             #scales.choices = []
 
-            def XAxis():
-                xAxis = scales.choices.xAxis
+            def XAxes(xaxes_type='x'):
+                if xaxes_type == 'x':
+                    print(" am here")
+                    xAxis = scales.x = Dict(track_changes=True)
+                    add_axes_cfgattributes(xAxis)
+                print("make appropriate xaxes")
+                pass
+            # XAxis()
 
-                def Grid():
-                    grid = xAxis.grid
-                    OptionsScalesXAxisGrid(grid)
-                XAxis.Grid = Grid
-            XAxis()
-            Scales.Choices = Dict()
-            Scales.Choices.XAxis = XAxis
-
+            Scales.XAxes = XAxes
         Scales()
         Options.Scales = Scales
     Options()
@@ -277,15 +296,15 @@ def get_basecfg(choices):
     # Options.Elements.Point()
     # Options.Elements.Line()
     match choices.plottype:
-        case 'line':
-            match choices.line.xscale:
-                case 'x':
-                    print("using default x axes")
-                    Options.Scales.Choices.XAxis.Grid()
-                case 'xaxes':
-                    print("multiple xaxes..edit cfgattrmeta")
-                    pass
-            pass
+        case 'line' | PlotType.Line:
+            # resorting to simple ifs -- types and match is tricky
+            Options.Scales.XAxes(choices.scales.xaxes)
+            # if choices.scales.xaxes == 'x':
+            #     Options.Scales.XAxes()
+            # elif isinstance(choices.scale.xaxes, list):
+            #     Options.Scales.XAxes(choices.line.xaxes)
+            #     pass
+
         case  'bar':
             pass
 

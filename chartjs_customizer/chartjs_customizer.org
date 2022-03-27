@@ -33,7 +33,20 @@ const myChart = new Chart(ctx, {
 });
 
 
-
+** example 4
+options: {
+    scales: {
+      xAxis: {
+        // The axis for this scale is determined from the first letter of the id as `'x'`
+        // It is recommended to specify `position` and / or `axis` explicitly.
+        type: 'time',
+      }
+      
+** example 3
+ options: {
+        scales: {
+            y: {
+            
 ** example 2
 options: {
   scales: {
