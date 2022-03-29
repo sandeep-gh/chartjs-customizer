@@ -14,7 +14,7 @@ if os:
 
 import sys
 if sys:
-    logging.basicConfig(filename="launcher.log", level=logging.INFO)
+    logging.basicConfig(filename="launcher.log", level=logging.DEBUG)
 
 
 from chartjs_customizer.wp_initialSetup import wp_initialSetup
@@ -26,6 +26,7 @@ if os:
 
 import justpy as jp
 from addict import Dict
+
 
 #wp = launcher(None)
 # wp = wp_initialSetup(None)
@@ -42,22 +43,32 @@ from addict import Dict
 # page_ready(wp, None)
 app = jp.app
 #jp.justpy(wp_initialSetup, start_server=False)
-#jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
+jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 
-wp = wp_chartjs_customizer(None)
-_hcs['/type'].target.selector.value = 'line'  # mimic key press
-
-dbref = _hcs['/options/scales/xAxis/grid/display'].target
-print(dbref)
-dbref.value = True
-msg = Dict()
-msg.value = True
-
-wp.update_ui_component(dbref, msg)
-
-
-#wp = wp_tryoutScales(None)
-#jp.justpy(wp_tryoutScales, host="192.168.0.183", start_server=False)
+#wp = wp_chartjs_customizer(None)
 # _hcs['/type'].target.selector.value = 'line'  # mimic key press
-# wp.update_ui_component()
-#wp.update_scale_configurator(_hcs['/type'].target, None)
+
+# dbref = _hcs['/options/scales/x/grid/display'].target
+# # print(dbref)
+# dbref.value = True
+# msg = Dict()
+# # msg.value = True
+# # logging.debug("-------------- now we begin ----")
+# wp.update_ui_component(dbref, msg)
+
+# cswb = _hcs['/options/scales/x/grid/color'].target
+# cs = cswb.cs_.target
+# shades = cs.shades_.target
+# maincolorselector = cs.mainColorSelector_.target
+# mv = maincolorselector.value
+# sv = shades.values
+
+
+# # logging.debug("-------------- done ----")
+
+
+# #wp = wp_tryoutScales(None)
+# #jp.justpy(wp_tryoutScales, host="192.168.0.183", start_server=False)
+# # _hcs['/type'].target.selector.value = 'line'  # mimic key press
+# # wp.update_ui_component()
+# #wp.update_scale_configurator(_hcs['/type'].target, None)

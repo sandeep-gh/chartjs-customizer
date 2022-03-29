@@ -1,3 +1,25 @@
+* Code flow
+** upon initialization
+
+** when ui cfg attr state change
+*** pure plot/chart look and feel change
+**** call react_ui:UpdateChart
+collect changes from dbrefBoard
+update cjs_cfg
+cjs_cfg_path = re.sub("/val$", "", kpath)
+
+*** new options selected
+**** the flow
+***** reactor
+****** update_ui_component
+update cjscfg with new value
+******* update_ui
+update_cfgattrmeta
+update uielemet hide show status based.
+update_chartCfg (based on new changes)
+******* refresh chart
+
+
 * Dealing with Axes
 ** example 1
 const myChart = new Chart(ctx, {

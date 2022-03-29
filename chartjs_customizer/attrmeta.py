@@ -119,10 +119,18 @@ def get_defaultVal(attrmeta):  # TODO: ask SO if there is a better way to
 
 
 def attrupdate(cfgattrmeta, kpath, active):
-    logger.debug(f"attrupdate {kpath} {active} {bool(active)}")
+
     attrmeta = dget(cfgattrmeta, kpath)
+    if 'display' in kpath:
+        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
     attrmeta = attrmeta._replace(active=bool(active))
+    if 'display' in kpath:
+        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
     wf.dupdate(cfgattrmeta, kpath, attrmeta)
+    if 'display' in kpath:
+        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
+    logger.debug(
+        f"kpath:attrmeta {kpath} {attrmeta}")
 
 
 def attradd(cfgattrmeta, kpath, metaval):
@@ -155,39 +163,46 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
     """
 
     ctx = (kpath, val)
-    logger.info(f"update_cfgattrmeta_kpath: {kpath} {ctx}")
+    logger.info(
+        f"=============update_cfgattrmeta_kpath: {kpath} {ctx}================")
+    # TODO: we cannot be doing nested loop operation
     kpaths_in_context = [_ for _ in attrmeta_in_context(ctx, cfgattrmeta)]
-
+    logger.debug(f"kpaths_in_context = {kpaths_in_context}")
     for dpath in kpaths_in_context:
-        attrupdate(cfgattrmeta, dpath, val)
-        logger.debug(f"{dpath}")
+        # we are making cfg active
+        # find way to make cfg inactive
+        # for e.g. going from line --> none
+        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
+        attrupdate(cfgattrmeta, dpath, bool(val))
+        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
+        logger.debug(f"update:cfgattrmeta: {dpath} new_val={val}")
+    # match(kpath, val):
+    #     case("/type", None):
+    #         attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", False)
+    #     case("/type", PlotType.Line | 'line'):  # value in justpy is never a python objet
+    #         # TODO: also disable any
+    #         #attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", True)
+    #         for dpath in attrmeta_in_context(('/type', 'line'), cfgattrmeta):
+    #             # update all things in the ('/type', 'line') context
+    #             attrupdate(cfgattrmeta, dpath, True)
+    #         # activate point element
+    #         # activate line element
 
-    logger.debug("landmakr 1")
-    match(kpath, val):
-        case("/type", None):
-            attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", False)
-        case("/type", PlotType.Line | 'line'):  # value in justpy is never a python objet
-            # TODO: also disable any
-            #attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", True)
-            for dpath in attrmeta_in_context(('/type', 'line'), cfgattrmeta):
-                # update all things in the ('/type', 'line') context
-                attrupdate(cfgattrmeta, dpath, True)
-            # activate point element
-            # activate line element
-
-        case("/options/scales/xAxis/grid/display", True):
-            for _ in ['color', 'borderColor', 'tickColor']:  # deal with circular later
-                attrupdate(
-                    cfgattrmeta, f"/options/scales/xAxis/grid/{_}", True)
-        case("/options/parsing/value", True):
-            # TODO: make it more generic by using FalseDict type
-            # parsing_metaval = cfgattrmeta.options.parsing.value
-            # for k, v in parsing_metaval.vrange.items():
-            #    logger.debug(f"adding /options/parsing/{k} to cfgattrmeta")
-            #    attradd(cfgattrmeta, f"/options/parsing/{k}", v)
-            match dget(chartcfg, "/type"):
-                case PlotType.Line | 'line':
-                    attrupdate(cfgattrmeta, "/options/parsing/x", True)
-                    attrupdate(cfgattrmeta, "/options/parsing/y", True)
-                case PlotType.Bubble:
-                    attrupdate(cfgattrmeta, "/options/parsing/id", True)
+    #     # case("/options/scales/xAxis/grid/display", True):
+    #     #     for _ in ['color', 'borderColor', 'tickColor']:  # deal with circular later
+    #     #         attrupdate(
+    #     #             cfgattrmeta, f"/options/scales/xAxis/grid/{_}", True)
+    #     case("/options/parsing/value", True):
+    #         # TODO: make it more generic by using FalseDict type
+    #         # parsing_metaval = cfgattrmeta.options.parsing.value
+    #         # for k, v in parsing_metaval.vrange.items():
+    #         #    logger.debug(f"adding /options/parsing/{k} to cfgattrmeta")
+    #         #    attradd(cfgattrmeta, f"/options/parsing/{k}", v)
+    #         match dget(chartcfg, "/type"):
+    #             case PlotType.Line | 'line':
+    #                 attrupdate(cfgattrmeta, "/options/parsing/x", True)
+    #                 attrupdate(cfgattrmeta, "/options/parsing/y", True)
+    #             case PlotType.Bubble:
+    #                 attrupdate(cfgattrmeta, "/options/parsing/id", True)
+    logger.info(
+        f"==========end update_cfgattrmeta_kpath: {kpath} {ctx}================")

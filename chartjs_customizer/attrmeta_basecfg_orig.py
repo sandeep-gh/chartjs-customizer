@@ -117,17 +117,26 @@ def OptionsPluginsLegendTitle(_cfg):
         "legend_title", str, str, uiorgCat.simple, False, [('/options/plugins/legend/title/display', True), ('/options/plugins/legend/title/display', False)])
 
 
-def OptionsScalesAxesGrid(_cfg):
+def OptionsScalesAxes(_cfg, base_path):
     _cfg.display = AttrMeta(
         False, bool, bool, uiorgCat.simple, True, [('/type', 'line')])  # TODO: this condition will change
+    _cfg.backgroundColor = AttrMeta(
+        twt.gray/1, Color, Color, uiorgCat.simple, False, [(f"{base_path}/display", True), (f"{base_path}/display", False)])
+    pass
+
+
+def OptionsScalesAxesGrid(_cfg, base_path, ctx):
+    _cfg.display = AttrMeta(
+        False, bool, bool, uiorgCat.simple, True, ctx)
+    logger.debug(f"base path {base_path}/display")
     _cfg.color = AttrMeta(
-        twt.gray/1, Color, Color, uiorgCat.simple, False, [('/options/scales/xAxis/grid/display', 'line')])
+        twt.gray/1, Color, Color, uiorgCat.simple, False, [(f'{base_path}/display', True), (f'{base_path}/display',  False)])
     _cfg.borderColor = AttrMeta(
-        twt.gray/2, Color, Color, uiorgCat.simple, False, [('/options/scales/xAxis/grid/display', 'line')])
+        twt.gray/2, Color, Color, uiorgCat.simple, False, [(f'{base_path}/display', True), (f'{base_path}/display', False)])
     _cfg.tickColor = AttrMeta(
-        twt.gray/1, Color, Color, uiorgCat.simple, False, [('/options/scales/xAxis/grid/display', 'line')])
+        twt.gray/1, Color, Color, uiorgCat.simple, False, [(f'{base_path}/display', True), (f'{base_path}/display', False)])
     _cfg.circular = AttrMeta(
-        None, None, None, uiorgCat.simple, False, [('/options/scales/xAxis/grid/display', 'line')])  # from for radar chart
+        None, None, None, uiorgCat.simple, False, [(f'{base_path}/display', True), (f'{base_path}/display', False)])  # from for radar chart
 
 
 def OptionsPluginsTitle(_cfg):
@@ -191,19 +200,22 @@ def OptionsElementsPoint(_cfg):
         '/type', 'line'), ('/type', 'radar'), ('/type', 'bubble')])
 
 
-def add_axes_cfgattributes(_axes):
+def add_axes_cfgattributes(_axes, base_path):
     """
-    _axes: is an axes element. add axes attributes like grid etc. 
+    _axes: is an axes element. add axes attributes like grid etc.
     """
 
     # TODO: add other properties as well
+
+    OptionsScalesAxes(_axes, base_path)
     _axes.grid = Dict(track_changes=True)
-    OptionsScalesAxesGrid(_axes.grid)
+    OptionsScalesAxesGrid(_axes.grid, f"{base_path}/grid", [
+                          (f"{base_path}/display", True), (f"{base_path}/display", False)])
 
 
 def get_basecfg(choices):
     """generate canonical attrmeta
-    choices defines user choices made in  initial setup 
+    choices defines user choices made in  initial setup
     -- mostly for scales
     """
 
@@ -230,8 +242,9 @@ def get_basecfg(choices):
             # choose elements based on plot type
             match choices.plottype:
                 case 'line' | PlotType.Line:
-                    Elements.Line()
-                    Elements.Point()
+                    # Elements.Line() #TODO: open up later
+                    # Elements.Point() #TODO: open up later
+                    pass
         Elements()
         Options.Elements = Elements
 
@@ -271,20 +284,28 @@ def get_basecfg(choices):
             Subtitle()
             Legend()
             # Tooltips()  # open up later
-        Plugins()
+        # Plugins()  #open up later
         Options.Plugins = Plugins
 
         def Scales():
             scales = options.scales = Dict(track_changes=True)
-            #scales.choices = []
+            # scales.choices = []
 
             def XAxes(xaxes_type='x'):
                 if xaxes_type == 'x':
-                    print(" am here")
+                    base_path = "/options/scales/x"
                     xAxis = scales.x = Dict(track_changes=True)
-                    add_axes_cfgattributes(xAxis)
-                print("make appropriate xaxes")
-                pass
+                    add_axes_cfgattributes(xAxis, base_path)
+
+                elif isinstance(xaxes_type, list):
+                    for eax in xaxes_type:
+                        logger.debug(f"now building xaes cfg for {eax}")
+                        #xAxis = scales[eax['id']] = Dict(track_changes=True)
+                        dnew(scales, eax['id'], Dict(track_changes=True))
+                        xAxis = dget(scales, eax['id'])
+                        base_path = f"/options/scales/{eax['id']}"
+                        add_axes_cfgattributes(xAxis, base_path)
+                        logger.debug(dget(_base, "/options/scales/x1/display"))
             # XAxis()
 
             Scales.XAxes = XAxes

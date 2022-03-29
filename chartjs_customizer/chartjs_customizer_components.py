@@ -26,13 +26,18 @@ def pltcanvas_(chartcfg: Dict):
         pltcanvas_ = cj.ChartJS_(
             "pltcanvas", pcp=[], options=cjs_plt_cfg)  # build the chart
         _ctx.pltcanvas = pltcanvas_  # TODO: auto track canvas
+    return pltcanvas_
 
 
-def build_uiorg_panel_(grouptag: str,   cfgattrmeta: Dict):
+def build_uigroup_blocks_(grouptag: str,   cfgattrmeta: Dict):
     """Builds a panel containing ui elements for cfg items  belonging
     to grouptag.
     ui_elemts are stacked in grid/auto-flow.  
     """
+
+    # if user has specified multiple axes make groups for each one
+    # tier1_level_group['options/scales'].append("xaxes/x1")
+
     def cfggroup_iter():
         """    iterator over attrmeta belonging to cfggroup
         """
@@ -67,13 +72,13 @@ def build_uiorg_panel_(grouptag: str,   cfgattrmeta: Dict):
                 res = len([True for _ in tier1keys if _ in kpath])
                 if tier1key is None:
                     if res == 0:
-                        logger.debug(f"{kpath} belongs to {t1key}/{tier1key}")
+                        logger.debug(f"{kpath} belongs to {tlkey}/{tier1key}")
                         return True
                     else:
                         return False  # kpath belongs to subcategory
                 else:
                     if res > 0:
-                        logger.debug(f"{kpath} belongs to {t1key}/{tier1key}")
+                        logger.debug(f"{kpath} belongs to {tlkey}/{tier1key}")
                         return True
                     else:
                         return False
@@ -87,9 +92,9 @@ def build_uiorg_panel_(grouptag: str,   cfgattrmeta: Dict):
                           )
                           )
 
-    top_level_ui = Dict([(_, buil_tl_panel(_)) for _ in top_level_group])
+    top_level_ui = Dict([(_, build_ui_panel(_)) for _ in top_level_group])
     tier1_level_ui = Dict()
-    for tlkey in top_level_group():
+    for tlkey in top_level_group:
         for subkey in tier1_level_group[tlkey]:
             subpanel_ = wf.Subsection_(
                 f"{tlkey}_{subkey}",  f"{tlkey}/{subkey}", build_ui_panel(tlkey, subkey))
@@ -111,8 +116,9 @@ def build_uigroup_panel_(grouptag: str,  chartcfg: Dict,  cfgattrmeta: Dict):
         rts = wf.TaskStack()
         rts.addTask(wf.ReactTag_UI.UpdateChart, None)
         return msg.page, rts
-    submit_ = wf.Wrapdiv_(wf.Button_())
+    submit_ = wf.Wrapdiv_(wf.Button_("Submit",  "Submit",
+                          "Config Chart", on_submit_click))
     return wf.StackV_('topPanel',
                       cgens=chain.from_iterable(
-                          [[pltcanvas_(chartcfg)], build_uigroup_panel_(grouptag, cfgattrmeta), [submit_]])
+                          [[pltcanvas_(chartcfg)], build_uigroup_blocks_(grouptag, cfgattrmeta), [submit_]])
                       )

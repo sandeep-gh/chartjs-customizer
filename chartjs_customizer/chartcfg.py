@@ -37,31 +37,31 @@ def update_chartCfg(cfgattrmeta, cjscfg):
     """
 
     """
-
+    logger.debug("=========== startupdate_chartCfg  ===============")
     # remove everything thats changed and put it
     # back in only the active ones: this enables deletion
     for kpath in cfgattrmeta.get_changed_history():
-        logger.debug(f"path {kpath} changed in cfgattrmeta")
+        #logger.debug(f"path {kpath} changed in cfgattrmeta")
         try:
             dpop(cjscfg, kpath, None)
         except PathNotFound as e:
-            logger.info(f"skipping: {kpath} not found in cjscfg")
+            #logger.info(f"skipping: {kpath} not found in cjscfg")
             pass  # skip if path is not in chartcfg
 
-    def logdebug(kpath):
-        if 'title' in kpath:
-            logger.debug(f"kuchkuch {kpath} {dget(cfgattrmeta, kpath)}")
-        return dget(cfgattrmeta, kpath).active
+    # def logdebug(kpath):
+    #     if 'title' in kpath:
+    #         logger.debug(f"kuchkuch {kpath} {dget(cfgattrmeta, kpath)}")
+    #     return dget(cfgattrmeta, kpath).active
+    # for kpath in filter(logdebug,
+    #                     cfgattrmeta.get_changed_history()):
 
-    # for kpath in filter(lambda kpath: dget(cfgattrmeta, kpath).active,
-    #                    cfgattrmeta.get_changed_history()):
-    for kpath in filter(logdebug,
+    for kpath in filter(lambda kpath: dget(cfgattrmeta, kpath).active,
                         cfgattrmeta.get_changed_history()):
 
         evalue = attrmeta.get_defaultVal(dget(cfgattrmeta, kpath))
         dnew(cjscfg, kpath, evalue)
         logger.debug(f"path {kpath} updated with {evalue} in cjscfg")
-    logger.debug("done update_chartCfg")
+    logger.debug("=========== done update_chartCfg  ===============")
     # cfgattrmeta.clear_changed_history()
 
 
@@ -70,7 +70,7 @@ def update_cfgattrmeta(chartcfg, cfgAttrMeta):
     """
     logger.info("update cfgattrmeta: to reflect chartcfg changes")
     for kpath in chartcfg.get_changed_history():
-        logger.info(f"{kpath} changed in chartcfg")
+        logger.info(f"{kpath} has changed in chartcfg")
         attrmeta.update_cfgattrmeta_kpath(kpath, dget(
             chartcfg, kpath), cfgAttrMeta, chartcfg)
 
