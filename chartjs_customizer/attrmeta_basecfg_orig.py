@@ -5,9 +5,9 @@ if logging:
     logger.setLevel(logging.DEBUG)
 
 from typing import NamedTuple, Any
-from addict import Dict, walker as dictWalker
+from addict import Dict
 from aenum import Enum, auto
-from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
+from .dpathutils import dget, dnew, dpop
 from justpy_chartjs.tags.style_values import Align, Position
 from justpy_chartjs.tags.style_values import Axis
 import webapp_framework as wf

@@ -3,9 +3,10 @@ import os
 if os:
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
-from addict import Dict, walker as dictWalker
+from addict import Dict
+from .dpathutils import walker as dictWalker
 from dpath.exceptions import PathNotFound
-from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
+from .dpathutils import dget, dnew, dpop
 from . import attrmeta
 from versa_engine.common.plot_utils import pick_colors_from_anchors
 
@@ -25,8 +26,8 @@ def build_pltcfg(chart_cfg):
                 return kpath, val
 
     plt_cfg = Dict()
-    for kpath, val in map(lambda _: to_chartcfg_path(_[0], _[1]), dictWalker(chart_cfg)):
-        #print("build_pltcfg ", kpath, " ", val)
+    for kpath, val in map(lambda _: to_chartcfg_path(_[0], _[1]), dictWalker(chart_cfg, guards=["/data"])):
+        print("build_pltcfg ", kpath, " ", val)
         dnew(plt_cfg, kpath, val)
 
     #print("done build_pltcfg")

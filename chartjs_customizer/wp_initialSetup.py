@@ -12,7 +12,8 @@ if logging:  # pin code here so that ide doesn't move around the import statemen
     logging.basicConfig(filename="chartjs_customizer.log", level=logging.DEBUG)
 import traceback
 from addict import Dict
-from dpath.util import get as dget, set as dset,  new as dnew
+#from dpath.util import get as dget, set as dset,  new as dnew
+from .dpathutils import dget, dnew, dpop
 import justpy as jp
 from .components_initialSetup import cfgAttrMeta, cfgattr_groupInitial
 

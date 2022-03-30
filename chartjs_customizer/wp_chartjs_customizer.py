@@ -25,7 +25,8 @@ from .attrmeta_basecfg_helper import uiorgCat, PlotType
 from .attrmeta_basecfg_orig import get_basecfg
 from .chartcfg import (add_dataset, build_pltcfg, update_cfgattrmeta,
                        update_chartCfg)
-from dpath.util import get as dget, set as dset,  new as dnew, search as dsearch
+from dpath.util import set as dset
+from .dpathutils import dget, dnew
 
 from addict import Dict
 from aenum import extend_enum, auto

@@ -13,7 +13,8 @@ import webapp_framework_extn as wfx
 from .attrmeta_basecfg_helper import uiorgCat, FalseDict
 from .attrmeta_basecfg import get_basecfg
 from .cfgattr_uic import build_uic_iter
-from addict import Dict, walker as dictWalker
+from addict import Dict
+from .dpathutils import walker as dictWalker
 if 'appdir' in os.environ:
     from tracker import _hcs as stubStore, session_dict, refBoard
 

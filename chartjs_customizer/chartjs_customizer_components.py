@@ -4,7 +4,8 @@ if os:
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
-from addict import Dict, walker as dictWalker
+from addict import Dict
+from .dpathutils import walker as dictWalker
 import webapp_framework as wf
 import webapp_framework_extn as wfx
 # from . import attrmeta
@@ -16,7 +17,7 @@ from .attrmeta_basecfg_helper import is_visible
 top_level_group = ["options/elements", "options/plugins", "options/scales"]
 tier1_level_group = {"options/elements": ["line", "point"],
                      'options/plugins': ['legend'],
-                     'options/scales': [],
+                     'options/scales': ['xaxes'],
                      "data": []}
 
 

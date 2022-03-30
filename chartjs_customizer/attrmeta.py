@@ -7,9 +7,10 @@ if logging:
     logger.setLevel(logging.DEBUG)
 
 from typing import NamedTuple, Any
-from addict import Dict, walker as dictWalker
+from addict import Dict
+from .dpathutils import walker as dictWalker
 from aenum import Enum, auto
-from dpath.util import get as dget, set as dset, new as dnew, delete as dpop
+from .dpathutils import dget
 from justpy_chartjs.tags.style_values import Align, Position
 from justpy_chartjs.tags.style_values import Axis
 import webapp_framework as wf
@@ -133,8 +134,8 @@ def attrupdate(cfgattrmeta, kpath, active):
         f"kpath:attrmeta {kpath} {attrmeta}")
 
 
-def attradd(cfgattrmeta, kpath, metaval):
-    dnew(cfgattrmeta, kpath, metaval)
+# def attradd(cfgattrmeta, kpath, metaval):
+#     dnew(cfgattrmeta, kpath, metaval)
 
 
 def is_visible(attrmeta):
