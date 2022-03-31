@@ -38,13 +38,15 @@ def update_chartCfg(cfgattrmeta, cjscfg):
     """
 
     """
-    logger.debug("=========== startupdate_chartCfg  ===============")
+    logger.debug("=========== start update_chartCfg  ===============")
     # remove everything thats changed and put it
     # back in only the active ones: this enables deletion
+    inactive_kpaths = set()
     for kpath in cfgattrmeta.get_changed_history():
         #logger.debug(f"path {kpath} changed in cfgattrmeta")
         try:
             dpop(cjscfg, kpath, None)
+            inactive_kpaths.add(kpath)
         except PathNotFound as e:
             #logger.info(f"skipping: {kpath} not found in cjscfg")
             pass  # skip if path is not in chartcfg
@@ -61,19 +63,41 @@ def update_chartCfg(cfgattrmeta, cjscfg):
 
         evalue = attrmeta.get_defaultVal(dget(cfgattrmeta, kpath))
         dnew(cjscfg, kpath, evalue)
+        if kpath in inactive_kpaths:
+            inactive_kpaths.remove(kpath)
         logger.debug(f"path {kpath} updated with {evalue} in cjscfg")
     logger.debug("=========== done update_chartCfg  ===============")
     # cfgattrmeta.clear_changed_history()
+    if inactive_kpaths:
+        logger.debug("paths that became inactive: {inactive_kpaths}")
+    return inactive_kpaths
 
 
-def update_cfgattrmeta(chartcfg, cfgAttrMeta):
+def update_cfgattrmeta(chartcfg, cfgAttrMeta, new_inactive_kpaths=[]):
     """update cfgattrmeta corresponding to changes in chartcfg
+        new_inactive_paths: dict.change_history can only detect changes in value; and not popped out
+        so all popped stuff is send separately
     """
     logger.info("update cfgattrmeta: to reflect chartcfg changes")
     for kpath in chartcfg.get_changed_history():
-        logger.info(f"{kpath} has changed in chartcfg")
-        attrmeta.update_cfgattrmeta_kpath(kpath, dget(
-            chartcfg, kpath), cfgAttrMeta, chartcfg)
+        new_val = dget(chartcfg, kpath)
+        logger.debug(f"{kpath} has changed in chartcfg new_value={new_val}")
+        # TODO: in addition to default value in cfgattrmeta -- also maintain the current value
+
+        # e.g. x1/display is False then make the corresponding  cfgattrmeta false as well
+        # logger.debug(
+        #    f"fishy: update cfgattrmeta: active {kpath} to value={bool(new_val)}")
+        #attrmeta.attrupdate(cfgAttrMeta, kpath, bool(new_val))
+
+        # update all cfgs that ctx is above
+        attrmeta.update_cfgattrmeta_kpath(
+            kpath, new_val, cfgAttrMeta, chartcfg)
+
+    for kpath in new_inactive_kpaths:
+        # if the path is delete then set active to False
+        attrmeta.attrupdate(cfgattrmeta, kpath, False)
+        # update all dependent attributes
+        attrmeta.update_cfgattrmeta_kpath(kpath, False, cfgAttrMeta, chartcfg)
 
     logger.debug("done update_cfgattrmeta...")
 

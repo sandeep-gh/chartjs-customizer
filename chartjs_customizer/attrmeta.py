@@ -122,20 +122,8 @@ def get_defaultVal(attrmeta):  # TODO: ask SO if there is a better way to
 def attrupdate(cfgattrmeta, kpath, active):
 
     attrmeta = dget(cfgattrmeta, kpath)
-    if 'display' in kpath:
-        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
     attrmeta = attrmeta._replace(active=bool(active))
-    if 'display' in kpath:
-        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
     wf.dupdate(cfgattrmeta, kpath, attrmeta)
-    if 'display' in kpath:
-        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
-    logger.debug(
-        f"kpath:attrmeta {kpath} {attrmeta}")
-
-
-# def attradd(cfgattrmeta, kpath, metaval):
-#     dnew(cfgattrmeta, kpath, metaval)
 
 
 def is_visible(attrmeta):
@@ -173,10 +161,10 @@ def update_cfgattrmeta_kpath(kpath, val, cfgattrmeta, chartcfg):
         # we are making cfg active
         # find way to make cfg inactive
         # for e.g. going from line --> none
-        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
         attrupdate(cfgattrmeta, dpath, bool(val))
-        logger.debug(dget(cfgattrmeta, "/options/scales/x1/display"))
-        logger.debug(f"update:cfgattrmeta: {dpath} new_val={val}")
+
+        logger.debug(f"update:cfgattrmeta: {dpath} active={bool(val)} ")
+        logger.debug(f"post-update: {dget(cfgattrmeta, dpath)}")
     # match(kpath, val):
     #     case("/type", None):
     #         attrupdate(cfgattrmeta, "/options/scales/xAxis/grid/display", False)

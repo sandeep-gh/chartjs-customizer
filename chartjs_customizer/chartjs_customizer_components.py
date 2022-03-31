@@ -2,7 +2,7 @@ import logging
 import os
 if os:
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
 from addict import Dict
 from .dpathutils import walker as dictWalker
@@ -17,7 +17,7 @@ from .attrmeta_basecfg_helper import is_visible
 top_level_group = ["options/elements", "options/plugins", "options/scales"]
 tier1_level_group = {"options/elements": ["line", "point"],
                      'options/plugins': ['legend'],
-                     'options/scales': ['xaxes'],
+                     'options/scales': [],
                      "data": []}
 
 
@@ -37,7 +37,7 @@ def build_uigroup_blocks_(grouptag: str,   cfgattrmeta: Dict):
     """
 
     # if user has specified multiple axes make groups for each one
-    # tier1_level_group['options/scales'].append("xaxes/x1")
+    tier1_level_group['options/scales'].append("x1")
 
     def cfggroup_iter():
         """    iterator over attrmeta belonging to cfggroup

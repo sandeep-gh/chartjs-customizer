@@ -52,7 +52,7 @@ def walker(adict, ppath="", guards=None):
             if guards:
                 if f"{ppath}/{key}" in guards:
                     print(f"stoping at guard for {key}")
-                    yield (f"{ppath}/key", value)
+                    yield (f"{ppath}/{key}", value)
                     continue  # stop at the guard
             if isinstance(value, dict):
                 yield from walker(value, ppath + f"/{key}", guards=guards)

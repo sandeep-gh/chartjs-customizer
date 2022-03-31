@@ -4,7 +4,7 @@ based on their types
 import logging
 if logging:
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
 
 from typing import NamedTuple, Any
@@ -49,7 +49,7 @@ def build_uic(key, label, attrMeta):
     pcp = [shdw.md, bg/gray/1]
     if not attrMeta.active:
         pcp.append("hidden")
-    #print("now building ui for ", key, " ", attrMeta, " ", pcp)
+        logger.debug(f"now building ui:hidden for  {key} {attrMeta}  {pcp}")
     match str(attrMeta.vtype):
         case "<class 'int'>":
 

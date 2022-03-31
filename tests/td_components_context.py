@@ -36,21 +36,28 @@ choices.scales.xaxes = [
 
 cfgAttrMeta = get_basecfg(choices)
 
-print("walking --------------------")
-for pp in walker(cfgAttrMeta):
-    print(pp)
-# cjs_cfg = Dict(track_changes=True)
-# update_chartCfg(cfgAttrMeta, cjs_cfg)
-# opts = jsbeautifier.default_options()
-# print(jsbeautifier.beautify(json.dumps(cjs_cfg), opts))
+# print("walking --------------------")
+# for pp in walker(cfgAttrMeta):
+#     print(pp)
+cjs_cfg = Dict(track_changes=True)
+update_chartCfg(cfgAttrMeta, cjs_cfg)
+opts = jsbeautifier.default_options()
+print(jsbeautifier.beautify(json.dumps(cjs_cfg), opts))
 
-# cfgAttrMeta.clear_changed_history()
-# add_dataset(cjs_cfg)
-# dnew(cjs_cfg, "/data/labels", "[1,2,4,5]")
-# update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
-# update_chartCfg(cfgAttrMeta, cjs_cfg)
-# cfgAttrMeta.clear_changed_history()
-# cjs_cfg.clear_changed_history()
+cfgAttrMeta.clear_changed_history()
+add_dataset(cjs_cfg)
+dnew(cjs_cfg, "/data/labels", "[1,2,4,5]")
+update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
+update_chartCfg(cfgAttrMeta, cjs_cfg)
+cfgAttrMeta.clear_changed_history()
+cjs_cfg.clear_changed_history()
+
+opts = jsbeautifier.default_options()
+
+print(jsbeautifier.beautify(json.dumps(cjs_cfg), opts))
+
+cjs_plt_cfg = build_pltcfg(cjs_cfg)
+print(jsbeautifier.beautify(json.dumps(cjs_plt_cfg), opts))
 
 # # cycle through
 # panel_ = build_uigroup_panel_(uiorgCat.all, cjs_cfg, cfgAttrMeta)

@@ -305,7 +305,6 @@ def get_basecfg(choices):
                         xAxis = dget(scales, eax['id'])
                         base_path = f"/options/scales/{eax['id']}"
                         add_axes_cfgattributes(xAxis, base_path)
-                        logger.debug(dget(_base, "/options/scales/x1/display"))
             # XAxis()
 
             Scales.XAxes = XAxes

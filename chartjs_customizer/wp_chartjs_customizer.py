@@ -56,21 +56,18 @@ choices.scales.xaxes = [
     {'id': 'x1', 'type': 'time', 'title': {'text': 'Data'}}]
 
 cfgAttrMeta = get_basecfg(choices)
-logger.debug(dget(cfgAttrMeta, "/options/scales/x1/display"))
 # cjs_cfg: Json version of cfgAttrMeta -- will come from session_dict
 
 cjs_cfg = Dict(track_changes=True)
 update_chartCfg(cfgAttrMeta, cjs_cfg)
-logger.debug(dget(cfgAttrMeta, "/options/scales/x1/display"))
-
 cfgAttrMeta.clear_changed_history()
-add_dataset(cjs_cfg)
-dnew(cjs_cfg, "/data/labels", "[1,2,4,5]")
 dset(cjs_cfg, "/type", "line")
 update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
-logger.debug(dget(cfgAttrMeta, "/options/scales/x1/display"))
 update_chartCfg(cfgAttrMeta, cjs_cfg)
-logger.debug(dget(cfgAttrMeta, "/options/scales/x1/display"))
+# avoid dataset to be part of changeset
+add_dataset(cjs_cfg)
+dnew(cjs_cfg, "/data/labels", "[1,2,4,5]")
+
 cfgAttrMeta.clear_changed_history()
 cjs_cfg.clear_changed_history()
 
@@ -102,29 +99,31 @@ def make_wp_react(wp):
         2. update ui 'hidden' attribute based newly active cfgattrmeta
         """
         logger.debug("in update_ui")
-        update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
-        for kpath in cfgAttrMeta.get_changed_history():
-            logger.debug(f"handle changed {kpath}")
-            kpath = kpath.lstrip()
-            attrmeta = dget(cfgAttrMeta, kpath)
+        inactive_kpaths = set()
+        for i in range(2):
+            update_cfgattrmeta(cjs_cfg, cfgAttrMeta, inactive_kpaths)
+            cjs_cfg.clear_changed_history()
+            for kpath in cfgAttrMeta.get_changed_history():
+                logger.debug(f"iter {i}: handle changed {kpath}")
+                kpath = kpath.lstrip()
+                attrmeta = dget(cfgAttrMeta, kpath)
+                dbref = dget(refBoard, kpath)._go.target
 
-            # dget(refBoard_, kpath)._go.target
-            dbref = dget(refBoard, kpath)._go.target
+                if attrmeta.active and 'hidden' in dbref.classes:
+                    logger.debug(f"unhide {kpath}")
+                    dbref.remove_class("hidden")
 
-            if attrmeta.active and 'hidden' in dbref.classes:
-                logger.debug(f"unhide {kpath}")
-                dbref.remove_class("hidden")
-
-                # print(kpath, " ", dbref.classes)
-            elif not attrmeta.active and not 'hidden' in dbref.classes:
-                logger.debug(f"hide {kpath}")
-                dbref.set_class("hidden")
+                    # print(kpath, " ", dbref.classes)
+                elif not attrmeta.active and not 'hidden' in dbref.classes:
+                    logger.debug(f"hide {kpath}")
+                    dbref.set_class("hidden")
             # if new attrmeta elements have active;add them to cjs_cfg
-        # we should loop over updates until fix point is reached
+            # we should loop over updates until fix point is reached
+            inactive_kpaths = update_chartCfg(cfgAttrMeta, cjs_cfg)
+            cfgAttrMeta.clear_changed_history()
 
-        update_chartCfg(cfgAttrMeta, cjs_cfg)
-        cfgAttrMeta.clear_changed_history()
-        cjs_cfg.clear_changed_history()
+    cfgAttrMeta.clear_changed_history()
+    cjs_cfg.clear_changed_history()
 
     def refresh_chart():
         cjs_plt_cfg = build_pltcfg(cjs_cfg)
