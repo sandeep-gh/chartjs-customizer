@@ -128,7 +128,6 @@ def OptionsScalesAxes(_cfg, base_path):
 def OptionsScalesAxesGrid(_cfg, base_path, ctx):
     _cfg.display = AttrMeta(
         False, bool, bool, uiorgCat.simple, True, ctx)
-    logger.debug(f"base path {base_path}/display")
     _cfg.color = AttrMeta(
         twt.gray/1, Color, Color, uiorgCat.simple, False, [(f'{base_path}/display', True), (f'{base_path}/display',  False)])
     _cfg.borderColor = AttrMeta(

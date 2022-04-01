@@ -70,6 +70,8 @@ dnew(cjs_cfg, "/data/labels", "[1,2,4,5]")
 
 cfgAttrMeta.clear_changed_history()
 cjs_cfg.clear_changed_history()
+opts = jsbeautifier.default_options()
+logger.debug(jsbeautifier.beautify(json.dumps(cjs_cfg), opts))
 
 # ================================ end ===============================
 extend_enum(wf.ReactTag_UI, 'UpdateChart', 'UpdateChart')
@@ -80,10 +82,7 @@ def gen_wp_components():
     build stubs for all the components of the webpage
     """
     build_uigroup_panel_(uiorgCat.all, cjs_cfg, cfgAttrMeta)
-    # opts = jsbeautifier.default_options()
-    # print(jsbeautifier.beautify(json.dumps(stubStore), opts))
-    # print(jsbeautifier.beautify(json.dumps(cjs_cfg), opts))
-    # print(cjs_cfg)
+
     return wf.Container_(cgens=[stubStore.topPanel])
 
 
@@ -104,7 +103,7 @@ def make_wp_react(wp):
             update_cfgattrmeta(cjs_cfg, cfgAttrMeta, inactive_kpaths)
             cjs_cfg.clear_changed_history()
             for kpath in cfgAttrMeta.get_changed_history():
-                logger.debug(f"iter {i}: handle changed {kpath}")
+                logger.debug(f"iter {i}: make ui change for  {kpath}")
                 kpath = kpath.lstrip()
                 attrmeta = dget(cfgAttrMeta, kpath)
                 dbref = dget(refBoard, kpath)._go.target

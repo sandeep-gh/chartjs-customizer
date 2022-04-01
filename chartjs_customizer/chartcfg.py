@@ -9,6 +9,8 @@ from dpath.exceptions import PathNotFound
 from .dpathutils import dget, dnew, dpop
 from . import attrmeta
 from versa_engine.common.plot_utils import pick_colors_from_anchors
+import jsbeautifier
+import json
 
 
 def build_pltcfg(chart_cfg):
@@ -43,12 +45,15 @@ def update_chartCfg(cfgattrmeta, cjscfg):
     # back in only the active ones: this enables deletion
     inactive_kpaths = set()
     for kpath in cfgattrmeta.get_changed_history():
-        #logger.debug(f"path {kpath} changed in cfgattrmeta")
+        logger.debug(f"path {kpath} changed in cfgattrmeta")
         try:
-            dpop(cjscfg, kpath, None)
+            # logger.debug("what bakwas")
+            # opts = jsbeautifier.default_options()
+            # logger.debug(jsbeautifier.beautify(json.dumps(cjscfg), opts))
+            dpop(cjscfg, kpath)
             inactive_kpaths.add(kpath)
         except PathNotFound as e:
-            #logger.info(f"skipping: {kpath} not found in cjscfg")
+            logger.info(f"skipping: {kpath} not found in cjscfg {e}")
             pass  # skip if path is not in chartcfg
 
     # def logdebug(kpath):
@@ -66,10 +71,11 @@ def update_chartCfg(cfgattrmeta, cjscfg):
         if kpath in inactive_kpaths:
             inactive_kpaths.remove(kpath)
         logger.debug(f"path {kpath} updated with {evalue} in cjscfg")
-    logger.debug("=========== done update_chartCfg  ===============")
+
     # cfgattrmeta.clear_changed_history()
     if inactive_kpaths:
-        logger.debug("paths that became inactive: {inactive_kpaths}")
+        logger.debug(f"paths that became inactive: {inactive_kpaths}")
+    logger.debug("=========== done update_chartCfg  ===============")
     return inactive_kpaths
 
 
@@ -95,7 +101,7 @@ def update_cfgattrmeta(chartcfg, cfgAttrMeta, new_inactive_kpaths=[]):
 
     for kpath in new_inactive_kpaths:
         # if the path is delete then set active to False
-        attrmeta.attrupdate(cfgattrmeta, kpath, False)
+        attrmeta.attrupdate(cfgAttrMeta, kpath, False)
         # update all dependent attributes
         attrmeta.update_cfgattrmeta_kpath(kpath, False, cfgAttrMeta, chartcfg)
 

@@ -1,3 +1,17 @@
+* addict design
+arrays are first class objects
+history needs to be maintained for insertions and deletios in addition to updates
+deal with paths with array indexes[]
+
+be able to do dnew, ddelete.
+
+
+
+* TODO states between ui and cfgattrmeta/chartcfg needs to better maintained.
+we are not able to turn of x1/grid/* struff when x1/display is turned off.
+turn off means no longer part of config
+
+
 * Code flow
 ** upon initialization
 
@@ -20,6 +34,46 @@ update_chartCfg (based on new changes)
 ******* refresh chart
 
 
+** when cfgattr goes from active to inactive
+*** when this can happen:
+in reactor:
+  x1/display is active; in cjs_cfg: value changed from True to false
+
+round 1:
+in update_cfgattrmeta:
+    call attrmeta.update_cfgattrmeta_kpath(kpath, newval)
+    here all cfgattr whose context is (x1/display, False) will become inactive
+
+in update_ui:
+   all inactive will be hidden
+
+in update_chartCfg
+    new inactive paths are found like (x1/grid/display)
+
+round 2:    
+in update_cfgattrmeta:
+    The cfgattr updated in cfgattrmeta (like x1/grid/display made to inactive and popped from chartcfg)
+    will have None as output.
+    Will check for ctx (x1/grid/display, None) as ctx.
+    not find any.
+
+    Then since x1/grid/display is now an inactive path. it will be calll a) make it inactive (again) and call
+    ctx (x1/grid/display, False) which in turn will make x1/grid/color etc. inactive.
+
+
+    
+in summary:
+x1/display is turned off but is still active:
+  chartcfg is updated  and update_cfgattrmeta is called
+         x1/grid/display is made inactive 
+  in update_chartcfg 
+        x1/grid/display is new inactive path
+  in update_cfcgattrmeta:
+          we get ctx as (x1/grid/display, None)
+          but for inactive paths will also update for xtx
+          (x1/grid/display, False) and make (x1/grid/display inactive)<<--- we are repeating this work
+          
+    
 * Dealing with Axes
 ** example 1
 const myChart = new Chart(ctx, {

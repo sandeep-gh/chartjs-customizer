@@ -38,11 +38,11 @@ def dnew(dictobj, dpath, value):
     dpath_new(dictobj, dpath, value)
 
 
-def dpop(dictobj, dpath, value):
+def dpop(dictobj, dpath):
     if '[' in dpath and ']' in dpath:
         raise ValueError(f"cannot process array in {dpath}")
 
-    dpath_delete(dictobj, dpath, value)
+    dpath_delete(dictobj, dpath)
 
 
 def walker(adict, ppath="", guards=None):
