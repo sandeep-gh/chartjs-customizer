@@ -102,6 +102,7 @@ def make_wp_react(wp):
         for i in range(2):
             update_cfgattrmeta(cjs_cfg, cfgAttrMeta, inactive_kpaths)
             cjs_cfg.clear_changed_history()
+            inactive_kpaths = update_chartCfg(cfgAttrMeta, cjs_cfg)
             for kpath in cfgAttrMeta.get_changed_history():
                 logger.debug(f"iter {i}: make ui change for  {kpath}")
                 kpath = kpath.lstrip()
@@ -111,6 +112,10 @@ def make_wp_react(wp):
                 if attrmeta.active and 'hidden' in dbref.classes:
                     logger.debug(f"unhide {kpath}")
                     dbref.remove_class("hidden")
+                    # sync frontend ui and cjscfg value here
+                    logger.debug(f"""ui for {kpath} has been made visible: setting value to {dget(cjs_cfg, kpath)}
+                    """)
+                    dbref.value = dget(cjs_cfg, kpath)
 
                     # print(kpath, " ", dbref.classes)
                 elif not attrmeta.active and not 'hidden' in dbref.classes:
@@ -118,11 +123,19 @@ def make_wp_react(wp):
                     dbref.set_class("hidden")
             # if new attrmeta elements have active;add them to cjs_cfg
             # we should loop over updates until fix point is reached
-            inactive_kpaths = update_chartCfg(cfgAttrMeta, cjs_cfg)
+
             cfgAttrMeta.clear_changed_history()
 
-    cfgAttrMeta.clear_changed_history()
-    cjs_cfg.clear_changed_history()
+            logger.debug("post update debugging")
+            logger.debug(
+                f"value in ui component: {stubStore['/options/scales/x1/grid/display'].target.value}")
+            logger.debug(
+                f"value in cjs_cfg: {dget(cjs_cfg, '/options/scales/x1/grid/display')}")
+            logger.debug("done")
+
+            cfgAttrMeta.clear_changed_history()
+            cjs_cfg.clear_changed_history()
+            # ===================== end update_ui ====================
 
     def refresh_chart():
         cjs_plt_cfg = build_pltcfg(cjs_cfg)

@@ -4,6 +4,7 @@
 #from chartjs_customizer.just_chartjs_plt import launcher
 #from chartjs_customizer.configchart_wp_bits_and_pieces import launcher, page_ready
 #from chartjs_customizer.chartjs_customizer import launcher
+from tailwind_tags import twcc2hex
 import logging
 import os
 if os:
@@ -14,7 +15,9 @@ if os:
 
 import sys
 if sys:
-    logging.basicConfig(filename="launcher.log", level=logging.DEBUG)
+    FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
+    logging.basicConfig(filename="launcher.log",
+                        level=logging.DEBUG, format=FORMAT)
 
 
 from chartjs_customizer.wp_initialSetup import wp_initialSetup
@@ -45,7 +48,7 @@ app = jp.app
 #jp.justpy(wp_initialSetup, start_server=False)
 jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 
-#wp = wp_chartjs_customizer(None)
+
 # _hcs['/type'].target.selector.value = 'line'  # mimic key press
 
 # dbref = _hcs['/options/scales/x/grid/display'].target
@@ -58,7 +61,7 @@ jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 
 
 # debuggin gold
-
+# wp = wp_chartjs_customizer(None)
 # logging.debug("start tinkering")
 # # Turn on x1/display
 # x1_display = _hcs['/options/scales/x1/display'].target
@@ -67,13 +70,37 @@ jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 # msg.value = True
 
 # wp.update_ui_component(x1_display, msg)
+# x1_bg_color_selector = _hcs['/options/scales/x1/backgroundColor'].target
+
+
+# print("color options = ", twcc2hex.keys())
+
+# color_selector = x1_bg_color_selector.cs_.target
+
+# mainColorSelector = color_selector.mainColorSelector_.target
+# mainColorSelector.setValue("pink")  # pick from palette-v2x.json
+
+# shades = color_selector.shades_.target
+# shades.setValue(8)
+# print("post setValue ", shades.getValue())
+# msg.value = shades.getValue()
+# mainColorSelector.on_click(msg)
+
+
 # x1_grid_display = _hcs['/options/scales/x1/grid/display'].target
 # wp.update_ui_component(x1_grid_display, msg)
+
 
 # logging.debug("-------------------- Turn it off ---------------------")
 # msg.value = False
 # wp.update_ui_component(x1_display, msg)
 
+# logging.debug("-------------------- back on again ---------------------")
+# msg.value = True
+# wp.update_ui_component(x1_display, msg)
+
+
+# # ============================= ends here ============================
 
 # cs = cswb.cs_.target
 # shades = cs.shades_.target
