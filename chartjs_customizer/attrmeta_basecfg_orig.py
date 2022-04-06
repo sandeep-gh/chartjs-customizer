@@ -19,6 +19,24 @@ from .attrmeta_basecfg_helper import AttrMeta, PlotType, uiorgCat, Color, Border
 all_context = [('*', '*')]
 
 
+def DatasetsDataCfg(_cfg):
+    _cfg.backgroundColor = AttrMeta(
+        twt.gray/1, Color, Color, uiorgCat.simple, True, [('/type', 'line')])
+    _cfg.borderCapStyle = AttrMeta(
+        BorderCapStyle.butt, BorderCapStyle, BorderCapStyle, uiorgCat.nitpick, True, [('/type', 'line')])
+    _cfg.borderColor = AttrMeta(
+        twt.gray/2, Color, Color, uiorgCat.simple,  True, [('/type', 'line')])
+
+    _cfg.borderDash = AttrMeta([], None, None, uiorgCat.TBD,
+                               False, [('/type', 'line')])
+
+    _cfg.borderWidth = AttrMeta(
+        2, int, [0, 5], uiorgCat.simple, True, [('/type', 'line')])
+
+    _cfg.borderCapStyle = AttrMeta(
+        BorderCapStyle.butt, BorderCapStyle, BorderCapStyle, uiorgCat.nitpick, True, [('/type', 'line')])
+
+
 def OptionsElementsLineCfg(_cfg):
 
     _cfg.tension = AttrMeta(0, float, [0, 1], uiorgCat.advanced, True, [

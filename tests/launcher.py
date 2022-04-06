@@ -62,8 +62,8 @@ jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 
 # debuggin gold
 #wp = wp_chartjs_customizer(None)
-# logging.debug("start tinkering")
-# # Turn on x1/display
+# # logging.debug("start tinkering")
+# # # Turn on x1/display
 # x1_display = _hcs['/options/scales/x1/display'].target
 # x1_display.value = True
 # msg = Dict()
@@ -71,9 +71,6 @@ jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 
 # wp.update_ui_component(x1_display, msg)
 # x1_bg_color_selector = _hcs['/options/scales/x1/backgroundColor'].target
-
-
-# print("color options = ", twcc2hex.keys())
 
 # color_selector = x1_bg_color_selector.cs_.target
 

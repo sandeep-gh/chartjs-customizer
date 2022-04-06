@@ -12,10 +12,11 @@ def add_datacfg(cfg, datasets):
     cfg.data.datasets = []
     for data in datasets:
         datacfg = Dict(track_changes=True)
-        datacfg.line = Dict(track_changes=True)
-        OptionsElementsLineCfg(datacfg.line)
-        datacfg.point = Dict(track_changes=True)
-        OptionsElementsPoint(datacfg.point)
+        DatasetsDataCfg(datacfg)
+        #datacfg.line = Dict(track_changes=True)
+        # OptionsElementsLineCfg(datacfg.line)
+        #datacfg.point = Dict(track_changes=True)
+        # OptionsElementsPoint(datacfg.point)
         cfg.data.datasets.append(datacfg)
 
     pass

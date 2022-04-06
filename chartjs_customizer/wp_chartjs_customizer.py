@@ -65,15 +65,15 @@ cjs_cfg = Dict(track_changes=True)
 update_chartCfg(cfgAttrMeta, cjs_cfg)
 cfgAttrMeta.clear_changed_history()
 dset(cjs_cfg, "/type", "line")
+add_dataset(cjs_cfg)
+dnew(cjs_cfg, "/data/labels", "[1,2,4,5,6,7]")
 update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
+# add config for the added data
+add_datacfg(cfgAttrMeta, cjs_cfg.data.datasets)
 update_chartCfg(cfgAttrMeta, cjs_cfg)
 # avoid dataset to be part of changeset
-add_dataset(cjs_cfg)
 
-dnew(cjs_cfg, "/data/labels", "[1,2,4,5]")
 
-# adding datasets related config changes
-add_datacfg(cfgAttrMeta, cjs_cfg.data.datasets)
 update_chartCfg(cfgAttrMeta, cjs_cfg)
 cfgAttrMeta.clear_changed_history()
 cjs_cfg.clear_changed_history()
@@ -146,7 +146,7 @@ def make_wp_react(wp):
 
     def refresh_chart():
         cjs_plt_cfg = build_pltcfg(cjs_cfg)
-        logger.debug("gt-update chart with new {cjs_plt_cfg}")
+        logger.debug(f"gt-update chart with new {cjs_plt_cfg}")
         # logger.debug(
         # f"this is pltcanvas dbref: {stubStore.pltctx.pltcanvas.target.chartjs}")
         stubStore.pltctx.pltcanvas.target.chartjs.new_chart(cjs_plt_cfg)
@@ -174,10 +174,13 @@ def make_wp_react(wp):
                 for kpath in refBoard.get_changed_history():
                     kpath = kpath.lstrip()
                     logger.debug(
-                        f"react_ui:TBD: path:{kpath} {dget(refBoard, kpath)} ")
+                        f"react_ui:     path:{kpath} {dget(refBoard, kpath)} ")
                     # horrible approach
+                    logger.debug(f"{kpath}")
                     cjs_cfg_path = re.sub("/val$", "", kpath)
+                    logger.debug(f"{cjs_cfg_path}")
                     wf.dupdate(cjs_cfg, cjs_cfg_path, dget(refBoard, kpath))
+                    logger.debug(f"{cjs_cfg}")
                 refresh_chart()
 
     wp.update_ui_component = update_ui_component

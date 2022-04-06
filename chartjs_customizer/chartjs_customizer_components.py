@@ -14,6 +14,8 @@ from itertools import chain
 from .chartcfg import build_pltcfg
 from justpy_chartjs import chartjscomponents as cj
 from .attrmeta_basecfg_helper import is_visible
+import jsbeautifier
+import json
 top_level_group = ["options/elements",
                    "options/plugins", "options/scales", "data"]
 tier1_level_group = {"options/elements": ["line", "point"],
@@ -25,6 +27,10 @@ tier1_level_group = {"options/elements": ["line", "point"],
 def pltcanvas_(chartcfg: Dict):
     with wf.uictx("pltctx") as _ctx:
         cjs_plt_cfg = build_pltcfg(chartcfg)  # build chartjs compatible cfg
+        logger.debug("pltcfg = ")
+        opts = jsbeautifier.default_options()
+        logger.debug(jsbeautifier.beautify(json.dumps(cjs_plt_cfg), opts))
+
         pltcanvas_ = cj.ChartJS_(
             "pltcanvas", pcp=[], options=cjs_plt_cfg)  # build the chart
         _ctx.pltcanvas = pltcanvas_  # TODO: auto track canvas

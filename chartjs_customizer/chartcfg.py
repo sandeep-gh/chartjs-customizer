@@ -6,7 +6,7 @@ if os:
 from addict import Dict
 from .dpathutils import walker as dictWalker
 from dpath.exceptions import PathNotFound
-from .dpathutils import dget, dnew, dpop
+from .dpathutils import dget, dnew, dpop, stitch_from_dictiter
 from . import attrmeta
 from versa_engine.common.plot_utils import pick_colors_from_anchors
 import jsbeautifier
@@ -17,6 +17,7 @@ def build_pltcfg(chart_cfg):
     """
     translate chart_cfg
     """
+
     def to_chartcfg_path(kpath, val):
         match kpath, val:
             case '/options/parsing/value', False:
@@ -28,12 +29,20 @@ def build_pltcfg(chart_cfg):
             case _:
                 return kpath, val
 
-    plt_cfg = Dict()
-    for kpath, val in map(lambda _: to_chartcfg_path(_[0], _[1]), dictWalker(chart_cfg)):
-        if val is not None:
-            dnew(plt_cfg, kpath, val)
+    # TODO: use of internal is bad design. just pass the filter
+    plt_cfg = stitch_from_dictiter(
+        map(lambda _: to_chartcfg_path(_[0], _[1]), dictWalker(chart_cfg, internal=True)))
+    # filter = lambda _ : to_chartcfg_path(_[0], _[1])
 
-    #print("done build_pltcfg")
+    # plt_cfg = Dict()
+    # for kpath, val in ):
+    #     if "__arr" in kpath:
+    #         logger.debug(f"saw __arr in {kpath}")
+    #     else:
+    #         if val is not None:
+    #             dnew(plt_cfg, kpath, val)
+
+    # print("done build_pltcfg")
     return plt_cfg
 
 
@@ -94,7 +103,7 @@ def update_cfgattrmeta(chartcfg, cfgAttrMeta, new_inactive_kpaths=[]):
         # e.g. x1/display is False then make the corresponding  cfgattrmeta false as well
         # logger.debug(
         #    f"fishy: update cfgattrmeta: active {kpath} to value={bool(new_val)}")
-        #attrmeta.attrupdate(cfgAttrMeta, kpath, bool(new_val))
+        # attrmeta.attrupdate(cfgAttrMeta, kpath, bool(new_val))
 
         # update all cfgs that ctx is above
         attrmeta.update_cfgattrmeta_kpath(
@@ -117,12 +126,17 @@ colorset = default_colorset = pick_colors_from_anchors(
     colorSchemes["default"], 8)
 
 labels = ["ds1", "ds2", "ds3", "ds4", "ds5"]
-datavals = [[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}, {'x': 7, 'y': 7}],
-            [{'x': 1, 'y': 7}, {'x': 5, 'y': 2}, {'x': 7, 'y': 3}],
-            [{'x': 1, 'y': 0}, {'x': 5, 'y': 8}, {'x': 7, 'y': 5}],
-            [{'x': 1, 'y': 13}, {'x': 5, 'y': 2}, {'x': 7, 'y': 1}],
-            [{'x': 1, 'y': 2}, {'x': 5, 'y': 6}, {'x': 7, 'y': 6}],
-            [{'x': 1, 'y': 9}, {'x': 5, 'y': 7}, {'x': 7, 'y': 9}],
+# datavals = [[{'x': 1, 'y': 3}, {'x': 5, 'y': 5}, {'x': 7, 'y': 7}],
+#             [{'x': 1, 'y': 7}, {'x': 5, 'y': 2}, {'x': 7, 'y': 3}],
+#             [{'x': 1, 'y': 0}, {'x': 5, 'y': 8}, {'x': 7, 'y': 5}],
+#             [{'x': 1, 'y': 13}, {'x': 5, 'y': 2}, {'x': 7, 'y': 1}],
+#             [{'x': 1, 'y': 2}, {'x': 5, 'y': 6}, {'x': 7, 'y': 6}],
+#             [{'x': 1, 'y': 9}, {'x': 5, 'y': 7}, {'x': 7, 'y': 9}],
+#             ]
+
+datavals = [[{'x': 1, 'y': 3}, {'x': 3, 'y': 5}, {'x': 7, 'y': 7}],
+            [{'x': 1, 'y': 7}, {'x': 3, 'y': 2}, {'x': 7, 'y': 3}]
+
             ]
 
 

@@ -1,8 +1,14 @@
-"""use json-ng to provide same functionality as dpath.util
+"""wrapper over dpath.util to 
 """
+import logging
+import os
+if os:
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
 #from jsonpath_ng import jsonpath, parse
 from dpath.util import get as dpath_get, new as dpath_new, delete as dpath_delete
-
+from addict import Dict
 
 # def locate(dictobj, dpath):
 #     if "." in dpath:
@@ -42,20 +48,26 @@ def dpop(dictobj, dpath):
     dpath_delete(dictobj, dpath)
 
 
-def list_walker(alist, ppath="", guards=None):
+def list_walker(alist, ppath="", guards=None, internal=False):
     """
     to be used in conjuction with walker; navigates the list
     part of the dict.
     todo; make guards over list part
     """
+    if internal:
+        yield (f"{ppath}/__arr", len(alist))
     for i, value in enumerate(alist):
         if isinstance(value, dict):
-            yield from walker(value, ppath + f"/{i}", guards=guards)
+            yield from walker(value, ppath + f"/{i}", guards=guards, internal=internal)
         elif isinstance(value, list):
-            yield from list_walker(value,  ppath + f"/{i}", guards=guards)
+            yield from list_walker(value,  ppath + f"/{i}", guards=guards, internal=internal)
 
 
-def walker(adict, ppath="", guards=None):
+def walker(adict, ppath="", guards=None, internal=False):
+    """
+    if internal is True; __arr path will be exposed
+
+    """
     for key, value in adict.items():
         try:
             if guards:
@@ -64,9 +76,9 @@ def walker(adict, ppath="", guards=None):
                     yield (f"{ppath}/{key}", value)
                     continue  # stop at the guard
             if isinstance(value, dict):
-                yield from walker(value, ppath + f"/{key}", guards=guards)
+                yield from walker(value, ppath + f"/{key}", guards=guards, internal=internal)
             elif isinstance(value, list):
-                yield from list_walker(value, ppath + f"/{key}", guards=guards)
+                yield from list_walker(value, ppath + f"/{key}", guards=guards, internal=internal)
 
             else:
                 yield (f"{ppath}/{key}", value)
@@ -75,3 +87,26 @@ def walker(adict, ppath="", guards=None):
         except Exception as e:
             print(f"in walker exception {ppath} {key} {e}")
             raise ValueError
+
+
+def stitch_from_dictiter(from_iter):
+    """create/stitch a dictionary back from paths obtained from from_dictwalker after apply
+    from
+    """
+    res_dict = Dict()
+    arr_kpaths = {}
+    for kpath, val in from_iter:
+        if "__arr" in kpath:
+
+            # TODO: not the best approach; use list constructor
+            logger.debug(f"arr_create {kpath[:-6]}")
+            dnew(res_dict, kpath[:-6], [Dict() for _ in range(val)])
+            # arr_kpaths[kpath] = dget(res_dict, kpath)
+            logger.debug(f"saw __arr in {kpath}")
+        else:
+            if val is not None:
+                # if kpath in arr_kpaths:
+                #     ppath, idx = get_path_idx(kpath)
+                #     arr_kpaths[ppath].apppend(val)
+                dnew(res_dict, kpath, val)
+    return res_dict
