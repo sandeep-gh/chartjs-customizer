@@ -1,5 +1,6 @@
 """main entry point to chartjs customizer
 """
+
 import traceback
 import logging
 import os
@@ -35,6 +36,8 @@ from .chartjs_customizer_components import build_uigroup_panel_
 import json
 from webapp_framework_tracking.dbrefBoard import refresh as dbrefBoard_refresh
 
+from .cfgattrmeta_datasets import add_datacfg
+
 
 def page_ready(self, msg):
     refBoard.clear_changed_history()
@@ -66,8 +69,12 @@ update_cfgattrmeta(cjs_cfg, cfgAttrMeta)
 update_chartCfg(cfgAttrMeta, cjs_cfg)
 # avoid dataset to be part of changeset
 add_dataset(cjs_cfg)
+
 dnew(cjs_cfg, "/data/labels", "[1,2,4,5]")
 
+# adding datasets related config changes
+add_datacfg(cfgAttrMeta, cjs_cfg.data.datasets)
+update_chartCfg(cfgAttrMeta, cjs_cfg)
 cfgAttrMeta.clear_changed_history()
 cjs_cfg.clear_changed_history()
 opts = jsbeautifier.default_options()

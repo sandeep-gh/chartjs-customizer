@@ -224,7 +224,6 @@ def get_basecfg(choices):
 
     def Options():
         options = _base.options = Dict(track_changes=True)
-        print("post options addition ", _base)
 
         def Elements():
             elements = options.elements = Dict(track_changes=True)

@@ -23,14 +23,15 @@ def build_pltcfg(chart_cfg):
                 return '/options/parsing', False
             case '/options/parsing/value', True:
                 return None  # let xkeys and ykeys take care of it
-
+            case '/options/scales/xaxes/__arr/':
+                pass  # convert this to array
             case _:
                 return kpath, val
 
     plt_cfg = Dict()
-    for kpath, val in map(lambda _: to_chartcfg_path(_[0], _[1]), dictWalker(chart_cfg, guards=["/data"])):
-        print("build_pltcfg ", kpath, " ", val)
-        dnew(plt_cfg, kpath, val)
+    for kpath, val in map(lambda _: to_chartcfg_path(_[0], _[1]), dictWalker(chart_cfg)):
+        if val is not None:
+            dnew(plt_cfg, kpath, val)
 
     #print("done build_pltcfg")
     return plt_cfg

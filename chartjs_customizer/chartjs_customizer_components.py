@@ -14,11 +14,12 @@ from itertools import chain
 from .chartcfg import build_pltcfg
 from justpy_chartjs import chartjscomponents as cj
 from .attrmeta_basecfg_helper import is_visible
-top_level_group = ["options/elements", "options/plugins", "options/scales"]
+top_level_group = ["options/elements",
+                   "options/plugins", "options/scales", "data"]
 tier1_level_group = {"options/elements": ["line", "point"],
                      'options/plugins': ['legend'],
                      'options/scales': [],
-                     "data": []}
+                     "data": ['datasets/0', 'datasets/1', 'datasets/2', 'datasets/3', 'datasets/4']}
 
 
 def pltcanvas_(chartcfg: Dict):
@@ -43,9 +44,14 @@ def build_uigroup_blocks_(grouptag: str,   cfgattrmeta: Dict):
         """    iterator over attrmeta belonging to cfggroup
         """
         def is_in_group(kpath, attrmeta):
-            if "/data/datasets" not in kpath:
-                logger.debug(f"{kpath} is in group {grouptag}")
-                return True  # for testing-- using all attributes
+            """
+            does attrmeta at kpath belongs to grouptag. check attrmeta.grouptag
+            for now using all. 
+            """
+            # if "/data/datasets" not in kpath:
+            #     logger.debug(f"{kpath} is in group {grouptag}")
+            #     return True  # for testing-- using all attributes
+            return True
             # if attrmeta.group == grouptag:              #     return True
             # return False
         yield from filter(lambda _: is_in_group(_[0], _[1]),

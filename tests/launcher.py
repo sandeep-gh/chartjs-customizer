@@ -61,7 +61,7 @@ jp.justpy(wp_chartjs_customizer, host="192.168.0.183", start_server=False)
 
 
 # debuggin gold
-# wp = wp_chartjs_customizer(None)
+#wp = wp_chartjs_customizer(None)
 # logging.debug("start tinkering")
 # # Turn on x1/display
 # x1_display = _hcs['/options/scales/x1/display'].target

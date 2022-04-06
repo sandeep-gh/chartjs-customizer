@@ -1,3 +1,8 @@
+import logging
+import os
+if os:
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 import functools
 import json
 import logging
@@ -13,13 +18,12 @@ from addict import Dict
 from webapp_framework_tracking.dbrefBoard import register as dbrefBoard_register
 
 
-logger = logging.getLogger(__name__)
-
 _hcs = Dict()
 refBoard = Dict(track_changes=True)
 _currTracker = _hcs
 _currSpath = "/"
-session_dict = {}
+session_dict = Dict(track_changes=True)
+session_dict.model = Dict(track_changes=True)
 
 
 # def build_hcdbref():
@@ -97,9 +101,9 @@ def hcGen_register(func):
         hcref = func(
             *args, **kwargs)  # this is the chance to add dbref to dbrefBoard
         # we store the stub/func; use func.target
-        #print("register ", func, " ", hcref.stub, " ", hcref.key)
+        # print("register ", func, " ", hcref.stub, " ", hcref.key)
         # TODO: pick it up: its a mystry why func !=
-        #dbrefBoard.register(refBoard, func, hcref)
+        # dbrefBoard.register(refBoard, func, hcref)
         dbrefBoard_register(refBoard, hcref.stub, hcref)
         return hcref
 
@@ -133,10 +137,10 @@ def register(func):
                 else:
                     cgens, cgens_c = tee(cgens)
 
-                for cgen in cgens_c:
+                for idx, cgen in enumerate(cgens_c):
                     if isinstance(cgen, Dict):
                         print(
-                            "aha -- got dict instead of stub; you mistyped fatso finger")
+                            f"aha -- got dict instead of stub; you mistyped fatso finger at array position {idx}")
                         print(traceback.format_exc())
                         raise ValueError("Got empty dict instead of stub")
 
@@ -144,6 +148,7 @@ def register(func):
         hcgen = func(*args, **kwargs)
         _currTracker[hcgen.key] = hcgen
         hcgen.spath = _currSpath + hcgen.key
+        logger.debug(f"adding {hcgen.key} to tracking at {hcgen.spath}")
         return hcgen
 
     return stubGen_wrapper
