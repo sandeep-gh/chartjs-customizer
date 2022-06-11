@@ -49,11 +49,11 @@ def attrupdate(cfgattrmeta, kpath, active):
     wf.dupdate(cfgattrmeta, kpath, attrmeta)
 
 
-def is_visible(attrmeta):
-    if attrmeta.vtype != None:
-        if attrmeta.group != uiorgCat.TBD:
-            return True
-    return False
+# def is_visible(attrmeta):
+#     if attrmeta.vtype != None:
+#         if attrmeta.group != uiorgCat.TBD:
+#             return True
+#     return False
 
 
 def attrmeta_in_context(ctx, cfgattrmeta):
